@@ -1,0 +1,19 @@
+doctype html
+html(lang="es")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title= title || "Fotaza"
+
+    link(rel="stylesheet", href="/bootstrap/css/bootstrap.min.css")
+
+  body.d-flex.flex-column.min-vh-100
+
+    include mixins/header
+
+    main.container.mt-4.flex-grow-1
+      block content
+
+    include mixins/footer
+
+    script(src="/bootstrap/js/bootstrap.bundle.min.js")
