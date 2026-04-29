@@ -27,9 +27,9 @@ app.set("views", "./views");
 app.use("/", viewsRouter);
 
 // SERVIDOR
-app.listen(PORT, (err) => {
-  if (err) {
-    console.error("Error al iniciar el servidor:", err);
+app.listen(PORT, (error) => {
+  if (error) {
+    console.error("Error al iniciar el servidor:", error);
     return;
   }
   console.log(`Servidor escuchando en el puerto ${PORT}`);
