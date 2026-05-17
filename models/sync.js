@@ -163,13 +163,15 @@ Notificacion.belongsTo(Usuario, {
 });
 
 //Sincronizacion de datos
-try {
-  await sequelize.sync({
-    alter: true,
-  });
+export async function connectDatabase() {
+  try {
+    await sequelize.authenticate();
+    console.log("Conexion a bd establecida");
 
-  console.log("Base de datos sincronizada");
-} catch (error) {
-  console.error("Error al sincronizar la base de datos:");
-  console.error(error);
+    await sequelize.sync({ alter: true });
+    console.log("Base de datos sincronizada");
+  } catch (error) {
+    console.error("Error al sincronizar la base de datos:");
+    throw error;
+  }
 }

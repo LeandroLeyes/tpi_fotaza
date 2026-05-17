@@ -3,9 +3,10 @@ import express from "express";
 import path from "path";
 
 import viewsRouter from "./routes/views.routes.js";
+import { connectDatabase } from "./models/sync.js";
 
+//CONSTANTES
 const PORT = process.env.PORT;
-
 const app = express();
 
 // MIDDLEWARES
@@ -26,11 +27,17 @@ app.set("views", "./views");
 // RUTAS
 app.use("/", viewsRouter);
 
-// SERVIDOR
-app.listen(PORT, (error) => {
-  if (error) {
-    console.error("Error al iniciar el servidor:", error);
-    return;
-  }
-  console.log(`Servidor escuchando en el puerto ${PORT}`);
-});
+// CONEXION A BD
+connectDatabase()
+  .then(() => {
+    app.listen(PORT, (error) => {
+      if (error) {
+        console.error("Error al iniciar el servidor:", error);
+        return;
+      }
+      console.log(`Servidor escuchando en el puerto ${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error("Error sincronizando la BD: ", error);
+  });
