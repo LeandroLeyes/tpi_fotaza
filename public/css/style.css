@@ -1,17 +1,9 @@
-/* =========================
-   GENERAL
-========================= */
 
 body{
     margin: 0;
     background-color: #F8F8F4;
     font-family: sans-serif;
 }
-
-
-/* =========================
-   LAYOUT
-========================= */
 
 .app-layout{
     display: flex;
@@ -22,10 +14,6 @@ body{
     width: 100%;
 }
 
-
-/* =========================
-   SIDEBAR
-========================= */
 
 .sidebar{
     width: 90px;
@@ -87,11 +75,6 @@ body{
     color: white;
 }
 
-
-/* =========================
-   TOPBAR
-========================= */
-
 .topbar{
     padding: 20px 30px;
 
@@ -141,29 +124,16 @@ body{
     margin-left: 20px;
 }
 
-
-/* =========================
-   CONTENT
-========================= */
-
 .content-area{
     padding: 0 30px 30px 30px;
 }
 
-
-/* =========================
-   MASONRY GRID
-========================= */
 
 .masonry-grid{
     columns: 5 250px;
     column-gap: 1rem;
 }
 
-
-/* =========================
-   CARD
-========================= */
 
 .article-card{
     position: relative;
@@ -209,20 +179,176 @@ body{
 
 .save-btn{
     position: absolute;
-
     top: 15px;
     right: 15px;
-
     border: none;
-
     background-color: #636B2F;
-
     color: white;
-
     width: 45px;
     height: 45px;
-
     border-radius: 50%;
-
     font-size: 18px;
+}
+
+/* =========================
+   AUTH
+========================= */
+
+.auth-body{
+    background-color: #F8F8F4;
+}
+
+.auth-container{
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.auth-card{
+    width: 100%;
+    max-width: 420px;
+    background-color: white;
+    padding: 40px;
+    border-radius: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+.auth-logo{
+    font-size: 50px;
+    color: #636B2F;
+}
+
+.auth-input{
+    border-radius: 15px;
+    padding: 14px;
+    background-color: #F3F3EF;
+    border: none;
+}
+
+.auth-input:focus{
+    box-shadow: none;
+    background-color: #ECECE8;
+}
+
+.auth-btn{
+    background-color: #636B2F;
+    color: white;
+    border-radius: 15px;
+    padding: 14px;
+}
+
+.auth-btn:hover{
+    background-color: #7A8440;
+    color: white;
+}
+
+.auth-link{
+    color: #636B2F;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+
+/* Landing */
+
+.landing-page{
+    min-height: 100vh;
+    background-color: whitesmoke;
+    color: #636B2F;
+    padding: 10px 20px;
+}
+
+.landing-navbar{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.login-btn{
+    border: 2px solid #636B2F;
+    color: #636B2F;
+    font-weight: 600;
+    transition: 0.2s ease;
+}
+
+.login-btn:hover{
+    background-color: #636B2F;
+    color: whitesmoke;
+}
+
+.register-btn{
+    background-color: #636B2F;
+    color: whitesmoke;
+    font-weight: 600;
+    transition: 0.2s ease;
+}
+
+.register-btn:hover{
+    background-color: #7A8440;
+    color: white;
+}
+
+.logo-container{
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.hero-section{
+    margin-top: 80px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 50px;
+}
+
+.hero-content{
+    max-width: 600px;
+}
+
+.hero-content h1{
+    font-size: 80px;
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+.hero-content span{
+    color: #a9b185;
+}
+
+.hero-content p{
+    margin-top: 20px;
+    font-size: 20px;
+    opacity: 0.9;
+}
+
+.hero-btn{
+    margin-top: 30px;
+    background-color:#636B2F;
+    color: whitesmoke;
+    border-radius: 20px;
+    padding: 15px 30px;
+    font-weight: bold;
+}
+
+.hero-gallery{
+    display: flex;
+    gap: 20px;
+}
+
+.hero-gallery img{
+    width: 220px;
+    border-radius: 30px;
+    object-fit: cover;
+}
+
+.hero-gallery img:nth-child(2){
+    margin-top: 80px;
+}
+
+.hero-gallery img:nth-child(3){
+    margin-top: 160px;
 }

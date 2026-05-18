@@ -1,14 +1,29 @@
 import { Router } from "express";
-import {
-  renderIndex,
-  renderLogin,
-  renderRegister,
-} from "../controllers/views.controller.js";
 
 const router = Router();
 
-router.get("/", renderIndex);
-router.get("/login", renderLogin);
-router.get("/register", renderRegister);
+router.get("/", (req, res) => {
+  res.render("landing/index", {
+    title: "Fotaza",
+  });
+});
+
+router.get("/home", (req, res) => {
+  res.render("home/index", {
+    title: "Inicio",
+  });
+});
+
+router.get("/login", (req, res) => {
+  res.render("auth/login", {
+    title: "Login",
+  });
+});
+
+router.get("/register", (req, res) => {
+  res.render("auth/register", {
+    title: "Registro",
+  });
+});
 
 export default router;

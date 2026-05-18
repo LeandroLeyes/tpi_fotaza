@@ -1,0 +1,50 @@
+extends ../layouts/auth
+
+block content
+
+  .auth-container
+
+    .auth-card
+
+      .text-center.mb-4
+
+        img(src="/images/fotaza-logo-1.png" width = "50px")
+
+        h2.mt-3
+          | Bienvenido
+
+        p.text-muted
+          | Inicia sesión en Fotaza
+
+
+      form
+
+        .mb-3
+
+          input.form-control.auth-input(
+            type="email",
+            placeholder="Correo electrónico"
+          )
+
+        .mb-4
+
+          input.form-control.auth-input(
+            type="password",
+            placeholder="Contraseña"
+          )
+
+        button.btn.auth-btn.w-100(
+          type="submit"
+        )
+          | Iniciar sesión
+
+
+      .text-center.mt-4
+
+        span.text-muted
+          | ¿No tienes cuenta?
+
+        a.ms-2.auth-link(
+          href="/register"
+        )
+          | Regístrate

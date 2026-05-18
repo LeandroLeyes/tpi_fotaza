@@ -1,0 +1,55 @@
+extends ../layouts/auth
+
+block content
+
+  .landing-page
+
+    nav.landing-navbar
+
+      .logo-container
+
+        img(src="/images/fotaza-logo-1.png" width = "50px")
+
+        span Fotaza
+
+      .landing-buttons.d-flex.gap-3
+
+        a.btn.login-btn.rounded-pill.px-4(href="/login")
+          | Iniciar sesion
+
+        a.btn.register-btn.rounded-pill.px-4(href="/register")
+          | Registrarse
+
+    .hero-section
+
+      .hero-content
+
+        h1
+          | Descubri,
+          br
+          span comparti
+          |  e inspírate.
+
+        p
+          | La plataforma para compartir fotografias,
+          | arte e inspiración.
+
+        a.btn.hero-btn(
+          href="/register"
+        )
+          | Comenzar ahora
+
+
+      .hero-gallery
+
+        img(
+          src="https://picsum.photos/400/600?1"
+        )
+
+        img(
+          src="https://picsum.photos/400/500?2"
+        )
+
+        img(
+          src="https://picsum.photos/400/700?3"
+        )
