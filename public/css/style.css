@@ -1,4 +1,4 @@
-
+/* Home */
 body{
     margin: 0;
     background-color: #F8F8F4;
@@ -14,24 +14,18 @@ body{
     width: 100%;
 }
 
-
+/* Sidebar */
 .sidebar{
     width: 90px;
     height: 100vh;
-
     position: fixed;
-
     background-color: white;
-
     border-right: 1px solid #eaeaea;
-
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     align-items: center;
-
     padding: 20px 0;
-
     z-index: 1000;
 }
 
@@ -49,19 +43,13 @@ body{
 .sidebar-link{
     width: 50px;
     height: 50px;
-
     border-radius: 15px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     text-decoration: none;
-
     color: #444;
-
     font-size: 22px;
-
     transition: 0.2s ease;
 }
 
@@ -75,9 +63,9 @@ body{
     color: white;
 }
 
+/* Topbar */
 .topbar{
     padding: 20px 30px;
-
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -86,41 +74,30 @@ body{
 .search-container{
     width: 100%;
     max-width: 1400px;
-
     position: relative;
 }
 
 .search-input{
     width: 100%;
-
     border: none;
-
     background-color: #ECECE8;
-
     padding: 16px 20px 16px 50px;
-
     border-radius: 20px;
-
     outline: none;
 }
 
 .search-icon{
     position: absolute;
-
     top: 50%;
     left: 20px;
-
     transform: translateY(-50%);
-
     color: #666;
 }
 
 .user-avatar{
     width: 45px;
     height: 45px;
-
     border-radius: 50%;
-
     margin-left: 20px;
 }
 
@@ -128,7 +105,7 @@ body{
     padding: 0 30px 30px 30px;
 }
 
-
+/* PinCard */
 .masonry-grid{
     columns: 5 250px;
     column-gap: 1rem;
@@ -137,25 +114,17 @@ body{
 
 .article-card{
     position: relative;
-
     margin-bottom: 1rem;
-
     break-inside: avoid;
-
     border-radius: 20px;
-
     overflow: hidden;
-
     cursor: pointer;
 }
 
 .card-image{
     width: 100%;
-
     display: block;
-
     border-radius: 20px;
-
     transition: 0.3s ease;
 }
 
@@ -165,11 +134,8 @@ body{
 
 .card-overlay{
     position: absolute;
-
     inset: 0;
-
     opacity: 0;
-
     transition: 0.3s ease;
 }
 
@@ -190,9 +156,7 @@ body{
     font-size: 18px;
 }
 
-/* =========================
-   AUTH
-========================= */
+/* Auth */
 
 .auth-body{
     background-color: #F8F8F4;
@@ -351,4 +315,100 @@ body{
 
 .hero-gallery img:nth-child(3){
     margin-top: 160px;
+}
+
+/* Responsive */
+
+@media (max-width: 1200px){
+
+    .hero-content h1{
+        font-size: 65px;
+    }
+
+    .hero-gallery img{
+        width: 180px;
+    }
+
+}
+
+
+@media (max-width: 992px){
+
+    .hero-section{
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .hero-content{
+        max-width: 100%;
+    }
+
+    .hero-gallery{
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .hero-gallery img:nth-child(2),
+    .hero-gallery img:nth-child(3){
+        margin-top: 0;
+    }
+
+}
+
+
+@media (max-width: 768px){
+
+    .landing-page{
+        padding: 20px;
+    }
+
+    .landing-navbar{
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .hero-section{
+        margin-top: 50px;
+    }
+
+    .hero-content h1{
+        font-size: 50px;
+    }
+
+    .hero-content p{
+        font-size: 18px;
+    }
+
+    .hero-gallery{
+        margin-top: 30px;
+    }
+
+    .hero-gallery img{
+        width: 140px;
+    }
+
+}
+
+
+@media (max-width: 576px){
+
+    .hero-content h1{
+        font-size: 40px;
+    }
+
+    .hero-gallery{
+        gap: 10px;
+    }
+
+    .hero-gallery img{
+        width: 100px;
+        border-radius: 20px;
+    }
+
+    .landing-buttons{
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
 }
