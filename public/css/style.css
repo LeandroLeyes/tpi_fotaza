@@ -5,7 +5,7 @@ body{
     font-family: sans-serif;
 }
 
-.app-layout{
+.main-layout{
     display: flex;
 }
 
@@ -106,7 +106,7 @@ body{
 }
 
 /* PinCard */
-.masonry-grid{
+.public-grid{
     columns: 5 250px;
     column-gap: 1rem;
 }
