@@ -12,7 +12,7 @@ export async function registroUsuario(req, res) {
     });
 
     if (validarEmail || validarUsername) {
-      return res.redirect("auth/register");
+      return res.redirect("/auth/register");
     }
 
     const passwordHash = await bcrypt.hash(body.password, 10);
@@ -20,12 +20,12 @@ export async function registroUsuario(req, res) {
     await Usuario.create({
       name: body.name,
       lastName: body.lastName,
-      usuarioname: body.username,
+      username: body.username,
       email: body.email,
       password: passwordHash,
     });
 
-    return res.redirect("/login");
+    return res.redirect("/auth/login");
   } catch (error) {
     console.error("Error al registrar usuario" + error);
     res.send("Error al registrar usuario" + error);
@@ -47,6 +47,7 @@ export async function inicioSesion(req, res) {
         req.session.usuario = {
           id: usuario.id,
           username: usuario.username,
+          avatar: undefined,
           rol: usuario.rol,
         };
 
@@ -55,11 +56,11 @@ export async function inicioSesion(req, res) {
         });
       } else {
         console.error("Contraseña incorrecta!");
-        res.redirect("auth/login");
+        res.redirect("/auth/login");
       }
     } else {
       console.error("El usuario non existe!");
-      res.redirect("auth/login");
+      res.redirect("/auth/login");
     }
   } catch (error) {
     console.error("Error al iniciar sesion" + error);

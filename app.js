@@ -4,6 +4,7 @@ import path from "path";
 import routes from "./routes/views.routes.js";
 import { connectDatabase } from "./models/sync.js";
 import session from "express-session";
+import { sesionData } from "./middlewares/sesion.middleware.js";
 
 //CONSTANTES
 const PORT = process.env.PORT;
@@ -33,6 +34,7 @@ app.use(
     //cookie: { secure: true } /*Solo usar si utilizamos cookies*/
   }),
 );
+app.use(sesionData);
 
 // RUTAS
 app.use("/", routes);
