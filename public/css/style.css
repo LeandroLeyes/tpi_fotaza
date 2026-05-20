@@ -156,8 +156,29 @@ body{
     font-size: 18px;
 }
 
-/* Auth */
+/* Footer */
+.footer{
+    margin-top: 80px;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+}
 
+.footer-info{
+    color: #777;
+    font-size: 15px;
+    align-items: center;
+}
+
+.footer-info span{
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Auth */
 .auth-body{
     background-color: #F8F8F4;
 }
