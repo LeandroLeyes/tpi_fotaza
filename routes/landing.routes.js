@@ -1,11 +1,11 @@
 import { Router } from "express";
 
-const router = Router();
+const landing = Router();
 
-router.get("/", (req, res) => {
+landing.get("/", (req, res) => {
   res.render("landing/index", {
     title: "Fotaza",
   });
 });
 
-export default router;
+export default landing;

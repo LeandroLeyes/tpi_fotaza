@@ -1,11 +1,8 @@
 import { Router } from "express";
+import { renderHome } from "../controllers/home.controller.js";
 
-const router = Router();
+const home = Router();
 
-router.get("/", (req, res) => {
-  res.render("home/index", {
-    title: "Inicio",
-  });
-});
+home.get("/", renderHome);
 
-export default router;
+export default home;

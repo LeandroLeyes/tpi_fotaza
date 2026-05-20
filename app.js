@@ -35,7 +35,7 @@ app.use(
 );
 
 // RUTAS
-app.use(routes);
+app.use("/", routes);
 
 // CONEXION A BD
 connectDatabase()

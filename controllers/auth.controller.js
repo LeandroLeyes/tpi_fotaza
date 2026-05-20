@@ -4,15 +4,15 @@ import { Usuario } from "../models/usuario.js";
 export async function registroUsuario(req, res) {
   try {
     const body = req.body;
-    const validarusuarioname = await Usuario.findOne({
-      where: { usuarioname: body.usuarioname },
+    const validarUsername = await Usuario.findOne({
+      where: { username: body.username },
     });
     const validarEmail = await Usuario.findOne({
       where: { email: body.email },
     });
 
-    if (validarEmail || validarusuarioname) {
-      return res.redirect("/register");
+    if (validarEmail || validarUsername) {
+      return res.redirect("auth/register");
     }
 
     const passwordHash = await bcrypt.hash(body.password, 10);
@@ -20,15 +20,15 @@ export async function registroUsuario(req, res) {
     await Usuario.create({
       name: body.name,
       lastName: body.lastName,
-      usuarioname: body.usuarioname,
+      usuarioname: body.username,
       email: body.email,
       password: passwordHash,
     });
 
     return res.redirect("/login");
   } catch (error) {
-    console.error("Error al registrar usuario");
-    res.send("Error al registrar usuario");
+    console.error("Error al registrar usuario" + error);
+    res.send("Error al registrar usuario" + error);
   }
 }
 
@@ -45,22 +45,24 @@ export async function inicioSesion(req, res) {
 
       if (validPassword) {
         req.session.usuario = {
-          id: user.id,
-          username: user.username,
-          rol: user.rol,
+          id: usuario.id,
+          username: usuario.username,
+          rol: usuario.rol,
         };
 
-        return res.redirect("/home");
+        req.session.save(() => {
+          return res.redirect("/home");
+        });
       } else {
         console.error("Contraseña incorrecta!");
-        res.redirect("/login");
+        res.redirect("auth/login");
       }
     } else {
       console.error("El usuario non existe!");
-      res.redirect("/login");
+      res.redirect("auth/login");
     }
   } catch (error) {
-    console.error("Error al iniciar sesion");
-    res.send("Error al iniciar sesion");
+    console.error("Error al iniciar sesion" + error);
+    res.send("Error al iniciar sesion" + error);
   }
 }

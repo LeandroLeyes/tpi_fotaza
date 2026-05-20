@@ -8,7 +8,7 @@ const router = Router();
 
 router.use("/", landingRoutes);
 
-router.use("/", authRoutes);
+router.use("/auth", authRoutes);
 
 router.use("/home", homeRoutes);
 

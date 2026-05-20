@@ -17,7 +17,7 @@ block content
           | Unite a Fotaza
 
 
-      form(action= "/register", method="post")
+      form(action= "/auth/register", method="post")
 
         .mb-3
 
@@ -48,5 +48,5 @@ block content
         span.text-muted
           | ¿Ya tienes cuenta?
 
-        a.ms-2.auth-link(href="/login")
+        a.ms-2.auth-link(href="/auth/login")
           | Inicia sesión
