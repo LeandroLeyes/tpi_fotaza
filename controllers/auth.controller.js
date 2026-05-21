@@ -52,7 +52,7 @@ export async function inicioSesion(req, res) {
         };
 
         req.session.save(() => {
-          return res.redirect("/home");
+          return res.redirect("/usuario");
         });
       } else {
         console.error("Contraseña incorrecta!");
