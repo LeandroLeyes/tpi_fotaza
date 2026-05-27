@@ -1,0 +1,30 @@
+extends ../layout
+
+block content
+  .container.mt-4
+    h2 Crear publicación
+
+    form(action="/usuario/publicaciones/crear" method="post" enctype="multipart/form-data")
+      
+      .mb-3
+        label.form-label Título
+        input.form-control(type="text" name="titulo" required)
+
+      .mb-3
+        label.form-label Descripción
+        textarea.form-control(name="descripcion" rows="3")
+
+      .mb-3
+        label.form-label Imagen
+        input.form-control(type="file" name="imagen" accept="image/*" required)
+
+      .mb-3
+        label.form-label Etiquetas (separadas por coma)
+        input.form-control(type="text" name="etiquetas" placeholder="foto, viaje, naturaleza")
+
+      .mb-3
+        .form-check
+            input.form-check-input(type="checkbox" name="copyright" value="true")
+            label.form-check-label Aplicar marca de agua (© mi usuario)  
+
+      button.btn.btn-primary(type="submit") Publicar

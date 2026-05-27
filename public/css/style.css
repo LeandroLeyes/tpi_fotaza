@@ -132,30 +132,6 @@ body{
     filter: brightness(0.8);
 }
 
-.card-overlay{
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    transition: 0.3s ease;
-}
-
-.article-card:hover .card-overlay{
-    opacity: 1;
-}
-
-.save-btn{
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    border: none;
-    background-color: #636B2F;
-    color: white;
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    font-size: 18px;
-}
-
 /* Footer */
 .footer{
     margin-top: 80px;
