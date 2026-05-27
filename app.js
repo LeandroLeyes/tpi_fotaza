@@ -5,6 +5,7 @@ import routes from "./routes/views.routes.js";
 import { connectDatabase } from "./models/sync.js";
 import session from "express-session";
 import { sesionData } from "./middlewares/sesion.middleware.js";
+import multer from "multer";
 
 //CONSTANTES
 const PORT = process.env.PORT;
@@ -35,6 +36,8 @@ app.use(
   }),
 );
 app.use(sesionData);
+const upload = multer({ storage: multer.memoryStorage() });
+app.use(upload.single("imagen"));
 
 // RUTAS
 app.use("/", routes);
