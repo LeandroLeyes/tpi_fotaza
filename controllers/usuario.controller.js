@@ -5,7 +5,12 @@ import { Usuario } from "../models/usuario.js";
 export async function mostrarHome(req, res) {
   try {
     const publicaciones = await Publicacion.findAll({
-      include: [{ model: Imagen }],
+      include: [
+        {
+          model: Imagen,
+          as: "imagenes",
+        },
+      ],
       order: [["createdAt", "DESC"]],
     });
 

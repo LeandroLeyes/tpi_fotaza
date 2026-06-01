@@ -30,7 +30,9 @@ Imagen.hasMany(Comentario);
 Comentario.belongsTo(Imagen);
 
 // Publicacion - Imagen
-Publicacion.hasMany(Imagen);
+Publicacion.hasMany(Imagen, {
+  as: "imagenes",
+});
 
 Imagen.belongsTo(Publicacion);
 
