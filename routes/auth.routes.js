@@ -2,22 +2,17 @@ import { Router } from "express";
 import {
   registroUsuario,
   inicioSesion,
+  loginForm,
+  registerForm,
 } from "../controllers/auth.controller.js";
 
 const auth = Router();
-auth.get("/login", (req, res) => {
-  res.render("auth/login", {
-    title: "Login",
-  });
-});
+
+auth.get("/login", loginForm);
 
 auth.post("/login", inicioSesion);
 
-auth.get("/register", (req, res) => {
-  res.render("auth/register", {
-    title: "Registro",
-  });
-});
+auth.get("/register", registerForm);
 
 auth.post("/register", registroUsuario);
 

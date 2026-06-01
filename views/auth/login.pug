@@ -1,9 +1,13 @@
 extends layout
 
+include alert
+
 block content
 
   .auth-container
 
+    +alert(alert)
+    
     .auth-card
 
       .text-center.mb-4
@@ -17,7 +21,7 @@ block content
           | Inicia sesión en Fotaza
 
 
-      form(action="/auth/login", method="post")
+      form(action="/auth/login", method="post", novalidate)
 
         .mb-3
 

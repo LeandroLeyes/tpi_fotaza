@@ -15,6 +15,20 @@ const app = express();
 app.use(express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false,
+      maxAge: 24 * 60 * 60 * 1000,
+    },
+  }),
+);
+app.use(sesionData);
+const upload = multer({ storage: multer.memoryStorage() });
+app.use(upload.single("imagen"));
 
 // BOOTSTRAP
 app.use(
@@ -25,19 +39,6 @@ app.use(
 // MOTOR DE PLANTILLAS
 app.set("view engine", "pug");
 app.set("views", "./views");
-
-//AUTENTICACION
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    //cookie: { secure: true } /*Solo usar si utilizamos cookies*/
-  }),
-);
-app.use(sesionData);
-const upload = multer({ storage: multer.memoryStorage() });
-app.use(upload.single("imagen"));
 
 // RUTAS
 app.use("/", routes);

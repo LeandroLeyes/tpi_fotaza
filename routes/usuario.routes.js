@@ -3,17 +3,17 @@ import { isAuthenticated } from "../middlewares/auth.middleware.js";
 import {
   crearPublicacion,
   mostrarFormPublicacion,
-} from "../controllers/publicaciones.controller.js";
+} from "../controllers/publicacion.controller.js";
+import { mostrarHome } from "../controllers/usuario.controller.js";
 
 const usuario = Router();
 
-usuario.use(isAuthenticated); // protege TODAS las rutas de /usuario
+usuario.use(isAuthenticated);
 
-usuario.get("/", (req, res) => {
-  res.render("usuario/home", { title: "Inicio" });
-});
+usuario.get("/home", mostrarHome);
 
 usuario.get("/publicaciones/crear", mostrarFormPublicacion);
+
 usuario.post("/publicaciones/crear", crearPublicacion);
 
 export default usuario;

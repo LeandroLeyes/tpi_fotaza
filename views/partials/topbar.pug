@@ -8,4 +8,8 @@ header.topbar
 
   .user-menu
 
-    img.user-avatar(src=usuario.avatar, alt="avatar")
+    if usuario
+    img.user-avatar(
+        src=usuario.avatar || "/images/default-avatar.png",
+        alt="avatar"
+    )

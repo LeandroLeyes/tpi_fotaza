@@ -15,7 +15,6 @@ export async function crearPublicacion(req, res) {
     const usuarioId = req.session.usuario.id;
     const username = req.session.usuario.username;
 
-    // Aplicar marca de agua con Sharp
     const copyright = req.body.copyright === "true";
 
     let imagenProcesada;
@@ -36,7 +35,6 @@ export async function crearPublicacion(req, res) {
       imagenProcesada = await sharp(req.file.buffer).jpeg().toBuffer();
     }
 
-    // Crear publicacion
     const publicacion = await Publicacion.create({
       titulo,
       descripcion,
@@ -62,7 +60,7 @@ export async function crearPublicacion(req, res) {
       }
     }
 
-    res.redirect("/usuario");
+    res.redirect("/usuario/home");
   } catch (error) {
     console.error("Error al crear publicación:", error);
     res.send("Error al crear publicación: " + error.message);
