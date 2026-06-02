@@ -1,0 +1,88 @@
+extends ../layout
+
+block content
+
+    .container-fluid.mt-4
+
+        .row.g-4
+
+            .col-lg-8
+
+                .card.shadow-sm.border-0
+
+                    if publicacion.imagenes.length > 0
+
+                        img.img-fluid.rounded-top(src=publicacion.imagenes[0].imagenBase64, alt=publicacion.titulo)
+
+            .col-lg-4
+
+                .card.shadow-sm.border-0.h-100
+
+                    .card-body
+
+                        h2.card-title= publicacion.titulo
+
+                        p.text-muted.mb-4= publicacion.descripcion
+
+                        hr
+
+                        h5 Autor
+
+                        p= publicacion.Usuario.username
+
+                        hr
+
+                        h5 Valoración
+
+                        form(action=`/valoracion/${publicacion.imagenes[0].id}`,method="POST", novalidate)
+
+                            .d-flex.gap-2.mb-3
+
+                                button.btn.btn-outline-success(type="submit",name="puntaje",value="1") ★
+                                    p 1
+
+                                button.btn.btn-outline-success(type="submit",name="puntaje",value="2") ★
+                                    p 2
+
+                                button.btn.btn-outline-success(type="submit",name="puntaje",value="3") ★
+                                    p 3
+                                    
+                                button.btn.btn-outline-success(type="submit",name="puntaje",value="4") ★
+                                    p 4
+
+                                button.btn.btn-outline-success(type="submit",name="puntaje",value="5") ★
+                                    p 5
+
+                        hr
+
+                        h5 Comentarios
+
+                        form(action=`/comentario/${publicacion.imagenes[0].id}`, method="POST", novalidate)
+
+                            textarea.form-control.mb-3(
+                                name="contenido",
+                                rows="3",
+                                placeholder="Escribe un comentario..."
+                            )
+
+                            button.btn.btn-success(
+                                type="submit"
+                            )
+                                | Comentar
+
+                        .mt-4
+
+                            if publicacion.imagenes[0].Comentarios && publicacion.imagenes[0].Comentarios.length
+
+                                each comentario in publicacion.imagenes[0].Comentarios
+
+                                    .border-bottom.pb-2.mb-3
+
+                                        strong= comentario.Usuario.username
+
+                                        p.mb-0= comentario.contenido
+
+                            else
+
+                                p.text-muted
+                                    | No hay comentarios todavía.

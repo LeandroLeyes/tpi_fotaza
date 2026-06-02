@@ -1,6 +1,8 @@
 import { Publicacion } from "../models/publicacion.js";
 import { Imagen } from "../models/imagen.js";
 import { Etiqueta } from "../models/etiqueta.js";
+import { Usuario } from "../models/usuario.js";
+import { Comentario } from "../models/comentario.js";
 import sharp from "sharp";
 
 export function mostrarFormPublicacion(req, res) {
@@ -65,4 +67,41 @@ export async function crearPublicacion(req, res) {
     console.error("Error al crear publicación:", error);
     res.send("Error al crear publicación: " + error.message);
   }
+}
+
+export async function renderPublicacion(req, res) {
+  const publicacion = await Publicacion.findByPk(req.params.id, {
+    include: [
+      {
+        model: Usuario,
+      },
+
+      {
+        model: Imagen,
+        as: "imagenes",
+        include: [
+          {
+            model: Comentario,
+            include: [Usuario],
+          },
+        ],
+      },
+    ],
+  });
+
+  if (!publicacion) {
+    return res.redirect("/usuario/home");
+  }
+
+  const pub = publicacion.toJSON();
+
+  pub.imagenes = pub.imagenes.map((img) => ({
+    ...img,
+    imagenBase64: `data:image/jpeg;base64,${Buffer.from(img.url).toString("base64")}`,
+  }));
+
+  res.render("usuario/publicaciones/verPublicacion", {
+    title: pub.titulo,
+    publicacion: pub,
+  });
 }

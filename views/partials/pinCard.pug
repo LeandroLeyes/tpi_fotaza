@@ -1,12 +1,11 @@
-.article-card
+a.article-card-link(href=`/usuario/publicaciones/${pub.id}`)
+    .article-card
 
-    if pub.imagenBase64
+        if pub.imagenBase64
 
-        img.card-image(
-            src=pub.imagenBase64,
-            alt=pub.titulo
-        )
+            img.card-image(
+                src=pub.imagenBase64,
+                alt=pub.titulo
+            )
 
-    .card-info
-
-        h5= pub.titulo
+        .card-info

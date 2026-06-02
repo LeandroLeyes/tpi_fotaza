@@ -314,6 +314,40 @@ body{
     margin-top: 160px;
 }
 
+/* Publicaciones */
+.publication-container{
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:40px;
+}
+
+.publication-image img{
+    width:100%;
+    border-radius:20px;
+}
+
+.publication-info{
+    background:white;
+    border-radius:20px;
+    padding:25px;
+}
+
+.rating-container{
+    display:flex;
+    gap:5px;
+    flex-wrap:wrap;
+}
+
+.comment{
+    margin-top:15px;
+    padding:10px;
+    border-bottom:1px solid #ddd;
+}
+
+.btn-outline-success {
+    border: none;
+}
+
 /* Alertas */
 .alert{
   position: absolute;

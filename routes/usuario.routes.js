@@ -3,6 +3,7 @@ import { isAuthenticated } from "../middlewares/auth.middleware.js";
 import {
   crearPublicacion,
   mostrarFormPublicacion,
+  renderPublicacion,
 } from "../controllers/publicacion.controller.js";
 import { mostrarHome } from "../controllers/usuario.controller.js";
 
@@ -15,5 +16,7 @@ usuario.get("/home", mostrarHome);
 usuario.get("/publicaciones/crear", mostrarFormPublicacion);
 
 usuario.post("/publicaciones/crear", crearPublicacion);
+
+usuario.get("/publicaciones/:id", renderPublicacion);
 
 export default usuario;
