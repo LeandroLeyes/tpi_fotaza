@@ -143,6 +143,25 @@ Denuncia.belongsTo(Usuario, {
   as: "validador",
 });
 
+// Publicacion - Denuncia
+Publicacion.hasMany(Denuncia, {
+  foreignKey: "idPublicacion",
+});
+
+Denuncia.belongsTo(Publicacion, {
+  foreignKey: "idPublicacion",
+  allowNull: true,
+});
+
+// Comentario - Denuncia
+Comentario.hasMany(Denuncia, {
+  foreignKey: "idComentario",
+});
+
+Denuncia.belongsTo(Comentario, {
+  foreignKey: "idComentario",
+});
+
 // Usuario - Notificacion
 Usuario.hasMany(Notificacion, {
   foreignKey: "idUsuarioDestino",

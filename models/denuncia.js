@@ -15,7 +15,7 @@ Denuncia.init(
 
     descripcion: DataTypes.TEXT,
 
-    tipo: DataTypes.STRING,
+    tipo: DataTypes.ENUM("comentario", "publicacion"),
   },
   {
     sequelize,
