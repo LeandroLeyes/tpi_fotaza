@@ -1,0 +1,82 @@
+extends layout
+
+block content
+
+    .container.mt-4
+
+        .card.shadow-sm.mb-4
+
+            .card-body
+
+                .row.align-items-center
+
+                    .col-md-2.text-center
+
+                        img.rounded-circle(
+                            src=usuarioPerfil.avatar || "/images/Patroclo.jpeg",
+                            width="120",
+                            height="120"
+                        )
+
+                    .col-md-10
+
+                        h2.mb-2= usuarioPerfil.username
+
+                        p.text-muted.mb-3= usuarioPerfil.email
+
+                        .d-flex.gap-4.mb-3
+
+                            div.text-center
+
+                                h5.mb-0= cantidadPublicaciones
+
+                                small.text-muted Publicaciones
+
+                            div.text-center
+
+                                h5.mb-0= cantidadSeguidores
+
+                                small.text-muted Seguidores
+
+                            div.text-center
+
+                                h5.mb-0= cantidadSeguidos
+
+                                small.text-muted Siguiendo
+
+                        if esMiPerfil
+
+                            a.btn.btn-outline-success(
+                                href="/usuario/perfil/editar"
+                            )
+                                | Editar perfil
+
+                        else
+
+                            if siguiendo
+
+                                form(
+                                    action=`/usuario/dejar-seguir/${usuarioPerfil.id}`,
+                                    method="POST"
+                                )
+
+                                    button.btn.btn-outline-danger(
+                                        type="submit"
+                                    )
+                                        | Dejar de seguir
+
+                            else
+
+                                form(
+                                    action=`/usuario/seguir/${usuarioPerfil.id}`,
+                                    method="POST"
+                                )
+
+                                    button.btn.btn-success(
+                                        type="submit"
+                                    )
+                                        | Seguir
+
+        h4.mb-4 Publicaciones
+
+        include ../partials/publicGrid

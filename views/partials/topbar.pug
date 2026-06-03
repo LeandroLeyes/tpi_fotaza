@@ -4,12 +4,47 @@ header.topbar
 
     i.bi.bi-search.search-icon
 
-    input.search-input(type="search",placeholder="Buscar...")
+    input.search-input(
+      type="search",
+      placeholder="Buscar..."
+    )
 
   .user-menu
 
     if usuario
-    img.user-avatar(
-        src=usuario.avatar || "/images/default-avatar.png",
-        alt="avatar"
-    )
+
+      .dropdown
+
+        button.btn.p-0.border-0.bg-transparent(
+          type="button",
+          data-bs-toggle="dropdown",
+          aria-expanded="false"
+        )
+
+          img.user-avatar(
+            src=usuario.avatar || "/images/Patroclo.jpeg",
+            alt="avatar"
+          )
+
+        ul.dropdown-menu.dropdown-menu-end
+
+          li
+            a.dropdown-item(
+              href="/usuario/perfil"
+            )
+              | Ver perfil
+
+          li
+            a.dropdown-item(
+              href="/usuario/perfil/editar"
+            )
+              | Modificar perfil
+
+          li
+            hr.dropdown-divider
+
+          li
+            a.dropdown-item.text-danger(
+              href="/auth/logout"
+            )
+              | Cerrar sesión

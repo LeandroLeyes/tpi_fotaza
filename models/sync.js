@@ -123,6 +123,13 @@ Usuario.belongsToMany(Usuario, {
   otherKey: "idSeguido",
 });
 
+Usuario.belongsToMany(Usuario, {
+  through: Seguimiento,
+  as: "seguidores",
+  foreignKey: "idSeguido",
+  otherKey: "idSeguidor",
+});
+
 // Usuario - Denuncia
 Usuario.hasMany(Denuncia, {
   foreignKey: "idUsuario",

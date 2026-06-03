@@ -1,0 +1,28 @@
+.public-grid
+
+    each publicacion in publicaciones
+
+        a.article-card-link(
+            href=`/usuario/publicaciones/${publicacion.id}`
+        )
+
+            .article-card
+
+                if publicacion.imagenBase64
+
+                    img.card-image(
+                        src=publicacion.imagenBase64,
+                        alt=publicacion.titulo
+                    )
+
+                .card-overlay
+
+                    h6.mb-2= publicacion.titulo
+
+                    .d-flex.gap-3
+
+                        span
+                            | ⭐ #{publicacion.promedioValoraciones || 0}
+
+                        span
+                            | 💬 #{publicacion.cantidadComentarios || 0}

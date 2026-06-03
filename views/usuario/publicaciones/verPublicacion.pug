@@ -28,36 +28,65 @@ block content
 
                         h5 Autor
 
-                        p= publicacion.Usuario.username
+                        a.text-decoration-none.text-dark(href=`/usuario/perfil/${publicacion.Usuario.id}`)
+
+                            .d-flex.align-items-center.gap-2
+
+                                img.rounded-circle(
+                                    src=publicacion.Usuario.avatar || "/images/Patroclo.jpeg",
+                                    width="40",
+                                    height="40"
+                                )
+
+                                span.fw-semibold
+                                    = publicacion.Usuario.username
 
                         hr
 
-                        h5 Valoración
+                        if !esPropietario
 
-                        form(action=`/valoracion/${publicacion.imagenes[0].id}`,method="POST", novalidate)
+                            h5 Valoración
 
-                            .d-flex.gap-2.mb-3
+                            form(action=`/usuario/valoraciones/${publicacion.imagenes[0].id}`,method="POST", novalidate)
 
-                                button.btn.btn-outline-success(type="submit",name="puntaje",value="1") ★
-                                    p 1
+                                input(type="hidden", name="publicacionId", value=publicacion.id)
 
-                                button.btn.btn-outline-success(type="submit",name="puntaje",value="2") ★
-                                    p 2
+                                .d-flex.gap-2.mb-3
 
-                                button.btn.btn-outline-success(type="submit",name="puntaje",value="3") ★
-                                    p 3
-                                    
-                                button.btn.btn-outline-success(type="submit",name="puntaje",value="4") ★
-                                    p 4
+                                    button.btn.btn-outline-success(type="submit",name="puntaje",value="1") ★
+                                        p 1
 
-                                button.btn.btn-outline-success(type="submit",name="puntaje",value="5") ★
-                                    p 5
+                                    button.btn.btn-outline-success(type="submit",name="puntaje",value="2") ★
+                                        p 2
+
+                                    button.btn.btn-outline-success(type="submit",name="puntaje",value="3") ★
+                                        p 3
+                                        
+                                    button.btn.btn-outline-success(type="submit",name="puntaje",value="4") ★
+                                        p 4
+
+                                    button.btn.btn-outline-success(type="submit",name="puntaje",value="5") ★
+                                        p 5
+
+                            hr
+
+                        h5.mt-3 Estadísticas
+
+                        p
+                            strong Promedio:
+                            |  #{promedioValoraciones.toFixed(1)} ★
+
+                        p
+                            strong Cantidad de valoraciones:
+                            |  #{cantidadValoraciones}
 
                         hr
 
                         h5 Comentarios
 
-                        form(action=`/comentario/${publicacion.imagenes[0].id}`, method="POST", novalidate)
+                        form(action=`/usuario/comentarios/${publicacion.imagenes[0].id}`, method="POST", novalidate)
+
+                            input(type="hidden", name="publicacionId", value=publicacion.id)
 
                             textarea.form-control.mb-3(
                                 name="contenido",
@@ -69,6 +98,8 @@ block content
                                 type="submit"
                             )
                                 | Comentar
+
+                        hr
 
                         .mt-4
 

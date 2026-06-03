@@ -14,6 +14,10 @@ Valoracion.init(
     puntaje: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      validate: {
+        min: 1,
+        max: 5,
+      },
     },
   },
   {
