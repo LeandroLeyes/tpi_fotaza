@@ -12,7 +12,38 @@ block content
 
                     if publicacion.imagenes.length > 0
 
-                        img.img-fluid.rounded-top(src=publicacion.imagenes[0].imagenBase64, alt=publicacion.titulo)
+                        #carouselPublicacion.carousel.slide(data-bs-ride="false")
+
+                            .carousel-inner
+
+                                each imagen, index in publicacion.imagenes
+
+                                    .carousel-item(
+                                        class=index === 0 ? "active" : ""
+                                    )
+
+                                        img.d-block.w-100.rounded(
+                                            src=imagen.imagenBase64,
+                                            alt=publicacion.titulo
+                                        )
+
+                            if publicacion.imagenes.length > 1
+
+                                button.carousel-control-prev(
+                                    type="button",
+                                    data-bs-target="#carouselPublicacion",
+                                    data-bs-slide="prev"
+                                )
+
+                                    span.carousel-control-prev-icon
+
+                                button.carousel-control-next(
+                                    type="button",
+                                    data-bs-target="#carouselPublicacion",
+                                    data-bs-slide="next"
+                                )
+
+                                    span.carousel-control-next-icon
 
             .col-lg-4
 
@@ -20,73 +51,134 @@ block content
 
                     .card-body
 
-                        h2.card-title= publicacion.titulo
+                        h2.card-title.mb-3
+                            = publicacion.titulo
 
-                        p.text-muted.mb-4= publicacion.descripcion
+                        p.text-muted.mb-3
+                            = publicacion.descripcion
+
+                        if publicacion.Etiqueta && publicacion.Etiqueta.length
+
+                            .publication-tags.mb-4
+
+                                each etiqueta in publicacion.Etiqueta
+
+                                    a.text-decoration-none.me-2(
+                                        href=`/buscar?q=${etiqueta.nombre}`
+                                    )
+                                        | ##{etiqueta.nombre}
 
                         hr
 
-                        h5 Autor
+                        h5.mb-3
 
-                        a.text-decoration-none.text-dark(href=`/usuario/perfil/${publicacion.Usuario.id}`)
+                        a.text-decoration-none.text-dark(
+                            href=`/usuario/perfil/${publicacion.Usuario.id}`
+                        )
 
-                            .d-flex.align-items-center.gap-2
+                            .d-flex.align-items-center.gap-3
 
-                                img.rounded-circle(
+                                img.rounded-circle.shadow-sm(
                                     src=publicacion.Usuario.avatar || "/images/Patroclo.jpeg",
-                                    width="40",
-                                    height="40"
+                                    width="55",
+                                    height="55"
                                 )
 
-                                span.fw-semibold
-                                    = publicacion.Usuario.username
+                                div
+
+                                    h6.mb-0
+                                        = publicacion.Usuario.username
+
+                                    small.text-muted
+                                        | Ver perfil
 
                         hr
 
                         if !esPropietario
 
-                            h5 Valoración
+                            h5.mb-3 Valoración
 
-                            form(action=`/usuario/valoraciones/${publicacion.imagenes[0].id}`,method="POST", novalidate)
+                            form(action=`/usuario/valoraciones/${publicacion.imagenes[0].id}`, method="POST", novalidate)
 
                                 input(type="hidden", name="publicacionId", value=publicacion.id)
 
-                                .d-flex.gap-2.mb-3
+                                .d-flex.align-items-center.gap-1.mb-3
 
-                                    button.btn.btn-outline-success(type="submit",name="puntaje",value="1") ★
-                                        p 1
+                                    button.btn.btn-link.p-0.fs-3(
+                                        type="submit",
+                                        name="puntaje",
+                                        value="1"
+                                    ) ★
 
-                                    button.btn.btn-outline-success(type="submit",name="puntaje",value="2") ★
-                                        p 2
+                                    button.btn.btn-link.p-0.fs-3(
+                                        type="submit",
+                                        name="puntaje",
+                                        value="2"
+                                    ) ★
 
-                                    button.btn.btn-outline-success(type="submit",name="puntaje",value="3") ★
-                                        p 3
-                                        
-                                    button.btn.btn-outline-success(type="submit",name="puntaje",value="4") ★
-                                        p 4
+                                    button.btn.btn-link.p-0.fs-3(
+                                        type="submit",
+                                        name="puntaje",
+                                        value="3"
+                                    ) ★
 
-                                    button.btn.btn-outline-success(type="submit",name="puntaje",value="5") ★
-                                        p 5
+                                    button.btn.btn-link.p-0.fs-3(
+                                        type="submit",
+                                        name="puntaje",
+                                        value="4"
+                                    ) ★
+
+                                    button.btn.btn-link.p-0.fs-3(
+                                        type="submit",
+                                        name="puntaje",
+                                        value="5"
+                                    ) ★
 
                             hr
 
-                        h5.mt-3 Estadísticas
+                        h5.mb-3 Estadísticas
 
-                        p
-                            strong Promedio:
-                            |  #{promedioValoraciones.toFixed(1)} ★
+                        .row.text-center.mb-4
 
-                        p
-                            strong Cantidad de valoraciones:
-                            |  #{cantidadValoraciones}
+                            .col-6
+
+                                .card.bg-light.border-0
+
+                                    .card-body.py-3
+
+                                        h4.mb-0.text-success
+                                            = promedioValoraciones.toFixed(1)
+
+                                        small.text-muted
+                                            | Promedio
+
+                            .col-6
+
+                                .card.bg-light.border-0
+
+                                    .card-body.py-3
+
+                                        h4.mb-0.text-success
+                                            = cantidadValoraciones
+
+                                        small.text-muted
+                                            | Valoraciones
 
                         hr
 
-                        h5 Comentarios
+                        h5.mb-3 Comentarios
 
-                        form(action=`/usuario/comentarios/${publicacion.imagenes[0].id}`, method="POST", novalidate)
+                        form(
+                            action=`/usuario/comentarios/${publicacion.imagenes[0].id}`,
+                            method="POST",
+                            novalidate
+                        )
 
-                            input(type="hidden", name="publicacionId", value=publicacion.id)
+                            input(
+                                type="hidden",
+                                name="publicacionId",
+                                value=publicacion.id
+                            )
 
                             textarea.form-control.mb-3(
                                 name="contenido",
@@ -107,11 +199,23 @@ block content
 
                                 each comentario in publicacion.imagenes[0].Comentarios
 
-                                    .border-bottom.pb-2.mb-3
+                                    .card.bg-light.border-0.mb-3
 
-                                        strong= comentario.Usuario.username
+                                        .card-body
 
-                                        p.mb-0= comentario.contenido
+                                            .d-flex.align-items-center.gap-2.mb-2
+
+                                                img.rounded-circle(
+                                                    src=comentario.Usuario.avatar || "/images/Patroclo.jpeg",
+                                                    width="35",
+                                                    height="35"
+                                                )
+
+                                                strong
+                                                    = comentario.Usuario.username
+
+                                            p.mb-0
+                                                = comentario.contenido
 
                             else
 

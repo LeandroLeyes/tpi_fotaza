@@ -1,13 +1,10 @@
 header.topbar
 
-  form.search-container
+  form.search-container(action="/buscar",method="GET")
 
     i.bi.bi-search.search-icon
 
-    input.search-input(
-      type="search",
-      placeholder="Buscar..."
-    )
+    input.search-input(type="search", name="q", placeholder="Buscar...")
 
   .user-menu
 

@@ -74,19 +74,17 @@ export async function renderPublicacion(req, res) {
   try {
     const publicacion = await Publicacion.findByPk(req.params.id, {
       include: [
+        Etiqueta,
         {
           model: Usuario,
         },
         {
           model: Imagen,
           as: "imagenes",
-
           include: [
             Valoracion,
-
             {
               model: Comentario,
-
               include: [Usuario],
             },
           ],
@@ -99,6 +97,8 @@ export async function renderPublicacion(req, res) {
     }
 
     const pub = publicacion.toJSON();
+
+    console.log(publicacion.toJSON().Etiqueta);
 
     pub.imagenes = pub.imagenes.map((img) => ({
       ...img,

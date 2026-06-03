@@ -2,6 +2,7 @@ import { Publicacion } from "../models/publicacion.js";
 import { Imagen } from "../models/imagen.js";
 import { Usuario } from "../models/usuario.js";
 import { Seguimiento } from "../models/seguimiento.js";
+import { Valoracion } from "../models/valoracion.js";
 
 export async function mostrarHome(req, res) {
   try {
@@ -10,6 +11,7 @@ export async function mostrarHome(req, res) {
         {
           model: Imagen,
           as: "imagenes",
+          include: [Valoracion],
         },
       ],
       order: [["createdAt", "DESC"]],
@@ -17,18 +19,35 @@ export async function mostrarHome(req, res) {
 
     const publicaciones = pubs.map((pub) => {
       const img = pub.imagenes?.[0];
+
+      let sumaValoraciones = 0;
+      let totalValoraciones = 0;
+
+      pub.imagenes.forEach((imagen) => {
+        const valoraciones = imagen.Valoracions || [];
+
+        valoraciones.forEach((valoracion) => {
+          sumaValoraciones += valoracion.puntaje;
+          totalValoraciones++;
+        });
+      });
+
+      const promedioValoraciones =
+        totalValoraciones > 0 ? sumaValoraciones / totalValoraciones : 0;
+
       return {
         ...pub.toJSON(),
         imagenBase64: img?.url
           ? `data:image/jpeg;base64,${Buffer.from(img.url).toString("base64")}`
           : null,
         tieneCopyright: img?.copyright,
+        promedioValoraciones,
       };
     });
 
     res.render("usuario/home", {
       title: "Inicio",
-      publicaciones: publicaciones,
+      publicaciones,
     });
   } catch (error) {
     console.error("Error cargando home:", error);

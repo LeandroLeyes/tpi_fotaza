@@ -402,6 +402,29 @@ body{
     padding:25px;
 }
 
+.publication-tags a{
+    color: #636B2F;
+    transition: .2s;
+}
+
+.publication-tags a:hover{
+    color: #7A8440;
+}
+
+.carousel-item img{
+    max-height: 100vh;
+    object-fit: contain;
+}
+
+.btn-link{
+    color: #636B2F;
+    text-decoration: none;
+}
+
+.btn-link:hover{
+    color: #7A8440;
+}
+
 .rating-container{
     display:flex;
     gap:5px;

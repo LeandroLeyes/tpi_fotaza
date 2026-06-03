@@ -1,0 +1,95 @@
+extends layout
+
+block content
+
+    .container-fluid
+
+        h2.mb-3
+            | Resultados para "#{termino}"
+
+        .d-flex.gap-2.mb-4
+
+            a.btn(
+                href=`/buscar?q=${termino}&filtro=todo`,
+                class=filtro === "todo" ? "btn-success" : "btn-outline-success"
+            )
+                | Todo
+
+            a.btn(
+                href=`/buscar?q=${termino}&filtro=publicaciones`,
+                class=filtro === "publicaciones" ? "btn-success" : "btn-outline-success"
+            )
+                | Publicaciones
+
+            a.btn(
+                href=`/buscar?q=${termino}&filtro=usuarios`,
+                class=filtro === "usuarios" ? "btn-success" : "btn-outline-success"
+            )
+                | Usuarios
+
+            a.btn(
+                href=`/buscar?q=${termino}&filtro=etiquetas`,
+                class=filtro === "etiquetas" ? "btn-success" : "btn-outline-success"
+            )
+                | Etiquetas
+
+        if (filtro === "todo" || filtro === "publicaciones") && publicaciones.length > 0
+
+            .mb-5
+
+                h4.mb-3 Publicaciones
+
+                include ../partials/publicGrid
+
+        if (filtro === "todo" || filtro === "usuarios") && usuarios.length > 0
+
+            .mb-5
+
+                h4.mb-3 Usuarios
+
+                .row.g-3
+
+                    each usuarioEncontrado in usuarios
+
+                        .col-md-4
+
+                            .card.shadow-sm
+
+                                .card-body.d-flex.align-items-center.gap-3
+
+                                    img.rounded-circle(
+                                        src=usuarioEncontrado.avatar || "/images/Patroclo.jpeg",
+                                        width="60",
+                                        height="60"
+                                    )
+
+                                    div
+
+                                        a.text-decoration-none.text-dark(
+                                            href=`/usuario/perfil/${usuarioEncontrado.id}`
+                                        )
+
+                                            h6.mb-0= usuarioEncontrado.username
+
+        if (filtro === "todo" || filtro === "etiquetas") && etiquetas.length > 0
+
+            .mb-5
+
+                h4.mb-3 Etiquetas
+
+                .d-flex.flex-wrap.gap-2
+
+                    each etiqueta in etiquetas
+
+                        a.badge.text-bg-success.fs-6.text-decoration-none(
+                            href=`/buscar?q=${etiqueta.nombre}`
+                        )
+
+                            | ##{etiqueta.nombre}
+
+        if sinResultados
+
+            .text-center.mt-5
+
+                h4.text-muted
+                    | No se encontraron resultados
