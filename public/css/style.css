@@ -418,6 +418,16 @@ body{
     border: none;
 }
 
+.btn-primary {
+    background-color: #636B2F;
+    border: #636B2F;
+}
+
+.btn-primary:hover {
+    background-color: #898b79;
+    border: #898b79;
+}
+
 /* Alertas */
 .alert{
   position: absolute;

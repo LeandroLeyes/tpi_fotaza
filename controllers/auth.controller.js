@@ -131,10 +131,14 @@ export async function inicioSesion(req, res) {
   res.redirect("/usuario/home");
 }
 
-export async function finSesion(req, res) {
-  if (req.session) {
-    await req.session.destroy();
-    res.redirect("/auth/login");
-    return;
-  }
+export function finSesion(req, res) {
+  req.session.destroy((error) => {
+    if (error) {
+      console.error("Error al cerrar sesión:", error);
+      return res.redirect("/usuario/home");
+    }
+
+    res.clearCookie("connect.sid");
+    return res.redirect("/auth/login");
+  });
 }
