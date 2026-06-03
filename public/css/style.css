@@ -157,6 +157,51 @@ body{
     opacity: 1;
 }
 
+/* Perfil */
+.profile-card{
+    border: none;
+    border-radius: 25px;
+}
+
+.profile-header{
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    flex-wrap: wrap;
+}
+
+.profile-avatar img{
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+}
+
+.profile-info{
+    flex: 1;
+}
+
+.profile-stats{
+    display: flex;
+    gap: 40px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.stat{
+    text-align: center;
+}
+
+.stat h4{
+    margin: 0;
+    font-weight: 700;
+}
+
+.stat span{
+    color: #666;
+    font-size: 14px;
+}
+
+
 /* Footer */
 .footer{
     margin-top: 80px;
@@ -475,6 +520,15 @@ body{
 
     .public-grid{
         column-count: 2;
+    }
+
+    .profile-header{
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .profile-stats{
+        justify-content: center;
     }
 
 }

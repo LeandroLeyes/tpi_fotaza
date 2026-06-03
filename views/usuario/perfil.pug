@@ -2,47 +2,39 @@ extends layout
 
 block content
 
-    .container.mt-4
+    .container-fluid.mt-4
 
-        .card.shadow-sm.mb-4
+        .card.shadow-sm.mb-4.profile-card
 
             .card-body
 
-                .row.align-items-center
+                .profile-header
 
-                    .col-md-2.text-center
+                    .profile-avatar
 
                         img.rounded-circle(
-                            src=usuarioPerfil.avatar || "/images/Patroclo.jpeg",
-                            width="120",
-                            height="120"
+                            src=usuarioPerfil.avatar || "/images/Patroclo.jpeg"
                         )
 
-                    .col-md-10
+                    .profile-info
 
                         h2.mb-2= usuarioPerfil.username
 
                         p.text-muted.mb-3= usuarioPerfil.email
 
-                        .d-flex.gap-4.mb-3
+                        .profile-stats
 
-                            div.text-center
+                            .stat
+                                h4= cantidadPublicaciones
+                                span Publicaciones
 
-                                h5.mb-0= cantidadPublicaciones
+                            .stat
+                                h4= cantidadSeguidores
+                                span Seguidores
 
-                                small.text-muted Publicaciones
-
-                            div.text-center
-
-                                h5.mb-0= cantidadSeguidores
-
-                                small.text-muted Seguidores
-
-                            div.text-center
-
-                                h5.mb-0= cantidadSeguidos
-
-                                small.text-muted Siguiendo
+                            .stat
+                                h4= cantidadSeguidos
+                                span Siguiendo
 
                         if esMiPerfil
 

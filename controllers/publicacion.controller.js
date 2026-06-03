@@ -175,6 +175,20 @@ export async function valorarImagen(req, res) {
       return res.redirect("/auth/login");
     }
 
+    const imagen = await Imagen.findByPk(req.params.idImagen, {
+      include: {
+        model: Publicacion,
+        attributes: ["id", "UsuarioId"],
+      },
+    });
+
+    const esPropietario =
+      imagen.Publicacion.UsuarioId === req.session.usuario.id;
+
+    if (esPropietario) {
+      return res.redirect(`/usuario/publicaciones/${imagen.PublicacionId}`);
+    }
+
     const puntaje = Number(req.body.puntaje);
 
     const valoracionExistente = await Valoracion.findOne({
@@ -194,15 +208,6 @@ export async function valorarImagen(req, res) {
         UsuarioId: usuario.id,
         ImagenId: req.params.idImagen,
       });
-    }
-
-    const imagen = await Imagen.findByPk(req.params.idImagen);
-
-    const esPropietario =
-      imagen.Publicacion.UsuarioId === req.session.usuario.id;
-
-    if (esPropietario) {
-      return res.redirect(`/usuario/publicaciones/${imagen.PublicacionId}`);
     }
 
     return res.redirect(`/usuario/publicaciones/${imagen.PublicacionId}`);
