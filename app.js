@@ -27,8 +27,13 @@ app.use(
   }),
 );
 app.use(sesionData);
-const upload = multer({ storage: multer.memoryStorage() });
-app.use(upload.single("imagen"));
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 10 * 1024 * 1024,
+  },
+});
+app.use(upload.array("imagenes", 10));
 
 // BOOTSTRAP
 app.use(

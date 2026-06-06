@@ -20,53 +20,70 @@ export async function crearPublicacion(req, res) {
 
     const copyright = req.body.copyright === "true";
 
-    let imagenProcesada;
-
-    if (copyright) {
-      imagenProcesada = await sharp(req.file.buffer)
-        .composite([
-          {
-            input: Buffer.from(
-              `<svg width="400" height="50"><text x="10" y="35" font-size="24" fill="white" opacity="0.8">© ${username}</text></svg>`,
-            ),
-            gravity: "southeast",
-          },
-        ])
-        .jpeg()
-        .toBuffer();
-    } else {
-      imagenProcesada = await sharp(req.file.buffer).jpeg().toBuffer();
-    }
-
     const publicacion = await Publicacion.create({
       titulo,
       descripcion,
       UsuarioId: usuarioId,
     });
 
-    // Guardar imagen como BLOB
-    await Imagen.create({
-      url: imagenProcesada,
-      copyright: copyright,
-      PublicacionId: publicacion.id,
-    });
+    for (const archivo of req.files) {
+      let imagenProcesada;
 
-    // Manejar etiquetas (vienen como "foto,viaje,naturaleza")
+      if (copyright) {
+        imagenProcesada = await sharp(archivo.buffer)
+          .composite([
+            {
+              input: Buffer.from(
+                `
+                <svg width="400" height="50">
+                  <text
+                    x="10"
+                    y="35"
+                    font-size="24"
+                    fill="white"
+                    opacity="0.8"
+                  >
+                    © ${username}
+                  </text>
+                </svg>
+                `,
+              ),
+              gravity: "southeast",
+            },
+          ])
+          .jpeg()
+          .toBuffer();
+      } else {
+        imagenProcesada = await sharp(archivo.buffer).jpeg().toBuffer();
+      }
+
+      await Imagen.create({
+        url: imagenProcesada,
+        copyright,
+        PublicacionId: publicacion.id,
+      });
+    }
+
     if (etiquetas) {
       const nombresEtiquetas = etiquetas
         .split(",")
         .map((e) => e.trim())
-        .filter((e) => e);
+        .filter((e) => e.length > 0);
+
       for (const nombre of nombresEtiquetas) {
-        const [etiqueta] = await Etiqueta.findOrCreate({ where: { nombre } });
+        const [etiqueta] = await Etiqueta.findOrCreate({
+          where: { nombre },
+        });
+
         await publicacion.addEtiqueta(etiqueta);
       }
     }
 
-    res.redirect("/usuario/home");
+    return res.redirect("/usuario/home");
   } catch (error) {
     console.error("Error al crear publicación:", error);
-    res.send("Error al crear publicación: " + error.message);
+
+    return res.status(500).send("Error al crear publicación: " + error.message);
   }
 }
 
@@ -97,8 +114,6 @@ export async function renderPublicacion(req, res) {
     }
 
     const pub = publicacion.toJSON();
-
-    console.log(publicacion.toJSON().Etiqueta);
 
     pub.imagenes = pub.imagenes.map((img) => ({
       ...img,
@@ -147,6 +162,14 @@ export async function renderPublicacion(req, res) {
 
 export async function crearComentario(req, res) {
   try {
+    const publicacion = await Publicacion.findByPk(req.body.publicacionId);
+
+    if (!publicacion.comentariosActivo) {
+      req.flash("error", "Los comentarios están cerrados");
+
+      return res.redirect(`/usuario/publicaciones/${publicacion.id}`);
+    }
+
     const usuario = req.session.usuario;
 
     const comentario = await Comentario.create({
@@ -215,4 +238,18 @@ export async function valorarImagen(req, res) {
     console.error(error);
     res.send("Error al valorar imagen");
   }
+}
+
+export async function cambiarEstadoComentarios(req, res) {
+  const publicacion = await Publicacion.findByPk(req.params.id);
+
+  if (!publicacion) {
+    return res.redirect("/");
+  }
+
+  publicacion.comentariosActivo = !publicacion.comentariosActivo;
+
+  await publicacion.save();
+
+  res.redirect(`/usuario/publicaciones/${publicacion.id}`);
 }

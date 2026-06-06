@@ -51,11 +51,55 @@ block content
 
                     .card-body
 
-                        h2.card-title.mb-3
-                            = publicacion.titulo
+                        .d-flex.justify-content-between.align-items-start.mb-3
 
-                        p.text-muted.mb-3
-                            = publicacion.descripcion
+                            h2.card-title.mb-0
+                                = publicacion.titulo
+
+                            .dropdown
+
+                                button.btn.btn-light.btn-sm(
+                                    type="button"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                )
+                                    | ⋮
+
+                                ul.dropdown-menu.dropdown-menu-end
+
+                                    if esPropietario
+
+                                        li
+
+                                            form(
+                                                action=`/usuario/publicaciones/${publicacion.id}/comentarios`
+                                                method="POST"
+                                            )
+
+                                                if publicacion.comentariosActivo
+
+                                                    button.dropdown-item(
+                                                        type="submit"
+                                                    )
+                                                        | Cerrar comentarios
+
+                                                else
+
+                                                    button.dropdown-item(
+                                                        type="submit"
+                                                    )
+                                                        | Abrir comentarios
+
+                                    else
+
+                                        li
+
+                                            a.dropdown-item(
+                                                href=`/usuario/publicaciones/${publicacion.id}/denunciar`
+                                            )
+                                                | Denunciar publicación
+
+                        p.text-muted.mb-3= publicacion.descripcion
 
                         if publicacion.Etiqueta && publicacion.Etiqueta.length
 
@@ -70,8 +114,6 @@ block content
 
                         hr
 
-                        h5.mb-3
-
                         a.text-decoration-none.text-dark(
                             href=`/usuario/perfil/${publicacion.Usuario.id}`
                         )
@@ -79,8 +121,8 @@ block content
                             .d-flex.align-items-center.gap-3
 
                                 img.rounded-circle.shadow-sm(
-                                    src=publicacion.Usuario.avatar || "/images/Patroclo.jpeg",
-                                    width="55",
+                                    src=publicacion.Usuario.avatar || "/images/Patroclo.jpeg"
+                                    width="55"
                                     height="55"
                                 )
 
@@ -98,39 +140,47 @@ block content
 
                             h5.mb-3 Valoración
 
-                            form(action=`/usuario/valoraciones/${publicacion.imagenes[0].id}`, method="POST", novalidate)
+                            form(
+                                action=`/usuario/valoraciones/${publicacion.imagenes[0].id}`
+                                method="POST"
+                                novalidate
+                            )
 
-                                input(type="hidden", name="publicacionId", value=publicacion.id)
+                                input(
+                                    type="hidden"
+                                    name="publicacionId"
+                                    value=publicacion.id
+                                )
 
                                 .d-flex.align-items-center.gap-1.mb-3
 
                                     button.btn.btn-link.p-0.fs-3(
-                                        type="submit",
-                                        name="puntaje",
+                                        type="submit"
+                                        name="puntaje"
                                         value="1"
                                     ) ★
 
                                     button.btn.btn-link.p-0.fs-3(
-                                        type="submit",
-                                        name="puntaje",
+                                        type="submit"
+                                        name="puntaje"
                                         value="2"
                                     ) ★
 
                                     button.btn.btn-link.p-0.fs-3(
-                                        type="submit",
-                                        name="puntaje",
+                                        type="submit"
+                                        name="puntaje"
                                         value="3"
                                     ) ★
 
                                     button.btn.btn-link.p-0.fs-3(
-                                        type="submit",
-                                        name="puntaje",
+                                        type="submit"
+                                        name="puntaje"
                                         value="4"
                                     ) ★
 
                                     button.btn.btn-link.p-0.fs-3(
-                                        type="submit",
-                                        name="puntaje",
+                                        type="submit"
+                                        name="puntaje"
                                         value="5"
                                     ) ★
 
@@ -166,58 +216,77 @@ block content
 
                         hr
 
-                        h5.mb-3 Comentarios
+                        h5.mb-3| Comentarios
 
-                        form(
-                            action=`/usuario/comentarios/${publicacion.imagenes[0].id}`,
-                            method="POST",
-                            novalidate
-                        )
+                        if publicacion.comentariosActivo
 
-                            input(
-                                type="hidden",
-                                name="publicacionId",
-                                value=publicacion.id
+                            form(
+                                action=`/usuario/comentarios/${publicacion.imagenes[0].id}`
+                                method="POST"
+                                novalidate
                             )
 
-                            textarea.form-control.mb-3(
-                                name="contenido",
-                                rows="3",
-                                placeholder="Escribe un comentario..."
-                            )
+                                input(
+                                    type="hidden"
+                                    name="publicacionId"
+                                    value=publicacion.id
+                                )
 
-                            button.btn.btn-success(
-                                type="submit"
-                            )
-                                | Comentar
+                                textarea.form-control.mb-3(
+                                    name="contenido"
+                                    rows="3"
+                                    placeholder="Escribe un comentario..."
+                                )
+
+                                button.btn.btn-success(
+                                    type="submit"
+                                )
+                                    | Comentar
+
+                        else
+
+                            .alert.alert-secondary
+                                | Los comentarios fueron cerrados por el autor.
 
                         hr
 
-                        .mt-4
+                        if publicacion.imagenes[0].Comentarios
 
-                            if publicacion.imagenes[0].Comentarios && publicacion.imagenes[0].Comentarios.length
+                            button.btn.btn-outline-success.w-100.mb-3(
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#comentariosCollapse"
+                                aria-expanded="true"
+                            )
+                                | Comentarios (#{publicacion.imagenes[0].Comentarios.length})
 
-                                each comentario in publicacion.imagenes[0].Comentarios
+                            .collapse.show#comentariosCollapse
 
-                                    .card.bg-light.border-0.mb-3
+                                .comment-container
 
-                                        .card-body
+                                    if publicacion.imagenes[0].Comentarios.length
 
-                                            .d-flex.align-items-center.gap-2.mb-2
+                                        each comentario in publicacion.imagenes[0].Comentarios
 
-                                                img.rounded-circle(
-                                                    src=comentario.Usuario.avatar || "/images/Patroclo.jpeg",
-                                                    width="35",
-                                                    height="35"
-                                                )
+                                            .card.bg-light.border-0.mb-3
 
-                                                strong
-                                                    = comentario.Usuario.username
+                                                .card-body
 
-                                            p.mb-0
-                                                = comentario.contenido
+                                                    .d-flex.align-items-center.gap-2.mb-2
 
-                            else
+                                                        img.rounded-circle(
+                                                            src=comentario.Usuario.avatar || "/images/Patroclo.jpeg"
+                                                            width="35"
+                                                            height="35"
+                                                        )
 
-                                p.text-muted
-                                    | No hay comentarios todavía.
+                                                        strong
+                                                            = comentario.Usuario.username
+
+                                                    p.mb-0
+                                                        = comentario.contenido
+
+                                    else
+
+                                        p.text-muted
+                                            | No hay comentarios todavía.

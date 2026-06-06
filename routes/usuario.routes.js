@@ -6,6 +6,7 @@ import {
   renderPublicacion,
   crearComentario,
   valorarImagen,
+  cambiarEstadoComentarios,
 } from "../controllers/publicacion.controller.js";
 import {
   mostrarHome,
@@ -37,6 +38,8 @@ usuario.get("/publicaciones/crear", mostrarFormPublicacion);
 usuario.post("/publicaciones/crear", crearPublicacion);
 
 usuario.get("/publicaciones/:id", renderPublicacion);
+
+usuario.post("/publicaciones/:id/comentarios", cambiarEstadoComentarios);
 
 // Comentarios
 usuario.post("/comentarios/:idImagen", crearComentario);

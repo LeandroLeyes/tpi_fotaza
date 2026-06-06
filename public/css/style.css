@@ -416,13 +416,23 @@ body{
     object-fit: contain;
 }
 
+.carousel-control-prev-icon{
+    color: #636B2F;
+}
+
+button.btn.btn-light {
+    background-color: white;
+    font-size: larger;
+    border: none;
+}
+
 .btn-link{
     color: #636B2F;
     text-decoration: none;
 }
 
 .btn-link:hover{
-    color: #7A8440;
+    color: #a1a396;
 }
 
 .rating-container{
@@ -435,6 +445,31 @@ body{
     margin-top:15px;
     padding:10px;
     border-bottom:1px solid #ddd;
+}
+
+.comment-container {
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 5px;
+}
+
+.comment-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.comment-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.comment-container::-webkit-scrollbar-thumb {
+    background: #bdbdbd;
+    border-radius: 10px;
+}
+
+.comment-container::-webkit-scrollbar-thumb:hover {
+    background: #8d8d8d;
 }
 
 .btn-outline-success {
