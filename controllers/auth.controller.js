@@ -123,6 +123,9 @@ export async function inicioSesion(req, res) {
 
     req.session.usuario = {
       id: usuario.id,
+      username: usuario.username,
+      name: usuario.name,
+      rol: usuario.rol,
       avatar: avatarBase64,
     };
   } catch (error) {

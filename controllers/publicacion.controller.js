@@ -6,6 +6,12 @@ import { Comentario } from "../models/comentario.js";
 import { Valoracion } from "../models/valoracion.js";
 import sharp from "sharp";
 
+// Helper: convierte BLOB a string base64 listo para src=""
+function blobABase64(blob) {
+  if (!blob) return null;
+  return `data:image/jpeg;base64,${Buffer.from(blob).toString("base64")}`;
+}
+
 export function mostrarFormPublicacion(req, res) {
   res.render("usuario/publicaciones/crearPublicacion", {
     title: "Crear publicación",
@@ -115,13 +121,25 @@ export async function renderPublicacion(req, res) {
 
     const pub = publicacion.toJSON();
 
+    // Convertir BLOB de imágenes a base64
     pub.imagenes = pub.imagenes.map((img) => ({
       ...img,
-
-      imagenBase64: `data:image/jpeg;base64,${Buffer.from(img.url).toString(
-        "base64",
-      )}`,
+      imagenBase64: blobABase64(img.url),
+      // Convertir avatar de cada comentarista
+      Comentarios: img.Comentarios?.map((c) => ({
+        ...c,
+        Usuario: {
+          ...c.Usuario,
+          avatar: blobABase64(c.Usuario?.avatar),
+        },
+      })),
     }));
+
+    // Convertir avatar del autor de la publicación
+    pub.Usuario = {
+      ...pub.Usuario,
+      avatar: blobABase64(pub.Usuario?.avatar),
+    };
 
     const imagen = pub.imagenes?.[0];
 
@@ -146,14 +164,6 @@ export async function renderPublicacion(req, res) {
         (valoracion) => valoracion.UsuarioId === req.session.usuario.id,
       )?.puntaje || 0;
 
-    let avatarBase64 = null;
-
-    if (Comentario.Usuario.avatar) {
-      avatarBase64 = `data:image/jpeg;base64,${Buffer.from(
-        Comentario.Usuario.avatar,
-      ).toString("base64")}`;
-    }
-
     res.render("usuario/publicaciones/verPublicacion", {
       title: pub.titulo,
       publicacion: pub,
@@ -161,9 +171,6 @@ export async function renderPublicacion(req, res) {
       cantidadValoraciones,
       miValoracion,
       esPropietario,
-      Usuario: {
-        avatar: avatarBase64,
-      },
     });
   } catch (error) {
     console.error(error);
