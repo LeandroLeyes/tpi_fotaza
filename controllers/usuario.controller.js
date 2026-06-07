@@ -1,9 +1,42 @@
+import { Op } from "sequelize";
 import { Publicacion } from "../models/publicacion.js";
 import { Imagen } from "../models/imagen.js";
 import { Usuario } from "../models/usuario.js";
 import { Seguimiento } from "../models/seguimiento.js";
 import { Valoracion } from "../models/valoracion.js";
 import sharp from "sharp";
+
+// Helper: convierte BLOB de avatar a string base64 listo para src=""
+function avatarABase64(blob) {
+  if (!blob) return null;
+  return `data:image/jpeg;base64,${Buffer.from(blob).toString("base64")}`;
+}
+
+// Helper: mapea publicaciones de BD agregando imagenBase64 y promedioValoraciones
+function mapearPublicaciones(pubs) {
+  return pubs.map((pub) => {
+    const img = pub.imagenes?.[0];
+
+    let sumaValoraciones = 0;
+    let totalValoraciones = 0;
+
+    pub.imagenes?.forEach((imagen) => {
+      (imagen.Valoracions || []).forEach((v) => {
+        sumaValoraciones += v.puntaje;
+        totalValoraciones++;
+      });
+    });
+
+    const promedioValoraciones =
+      totalValoraciones > 0 ? sumaValoraciones / totalValoraciones : 0;
+
+    return {
+      ...pub.toJSON(),
+      imagenBase64: img?.url ? avatarABase64(img.url) : null,
+      promedioValoraciones,
+    };
+  });
+}
 
 export async function mostrarHome(req, res) {
   try {
@@ -18,33 +51,7 @@ export async function mostrarHome(req, res) {
       order: [["createdAt", "DESC"]],
     });
 
-    const publicaciones = pubs.map((pub) => {
-      const img = pub.imagenes?.[0];
-
-      let sumaValoraciones = 0;
-      let totalValoraciones = 0;
-
-      pub.imagenes.forEach((imagen) => {
-        const valoraciones = imagen.Valoracions || [];
-
-        valoraciones.forEach((valoracion) => {
-          sumaValoraciones += valoracion.puntaje;
-          totalValoraciones++;
-        });
-      });
-
-      const promedioValoraciones =
-        totalValoraciones > 0 ? sumaValoraciones / totalValoraciones : 0;
-
-      return {
-        ...pub.toJSON(),
-        imagenBase64: img?.url
-          ? `data:image/jpeg;base64,${Buffer.from(img.url).toString("base64")}`
-          : null,
-        tieneCopyright: img?.copyright,
-        promedioValoraciones,
-      };
-    });
+    const publicaciones = mapearPublicaciones(pubs);
 
     res.render("usuario/home", {
       title: "Inicio",
@@ -61,48 +68,27 @@ export async function renderPerfil(req, res) {
     const usuario = await Usuario.findByPk(req.session.usuario.id);
 
     const publicacionesBD = await Publicacion.findAll({
-      where: {
-        UsuarioId: usuario.id,
-      },
-      include: [
-        {
-          model: Imagen,
-          as: "imagenes",
-        },
-      ],
+      where: { UsuarioId: usuario.id },
+      include: [{ model: Imagen, as: "imagenes", include: [Valoracion] }],
       order: [["createdAt", "DESC"]],
     });
 
-    const publicaciones = publicacionesBD.map((pub) => {
-      const imagen = pub.imagenes?.[0];
-
-      return {
-        ...pub.toJSON(),
-
-        imagenBase64: imagen
-          ? `data:image/jpeg;base64,${Buffer.from(imagen.url).toString("base64")}`
-          : null,
-
-        promedioValoraciones: 0,
-        cantidadComentarios: 0,
-      };
-    });
+    const publicaciones = mapearPublicaciones(publicacionesBD);
 
     const cantidadSeguidores = await Seguimiento.count({
-      where: {
-        idSeguido: usuario.id,
-      },
+      where: { idSeguido: usuario.id },
     });
 
     const cantidadSeguidos = await Seguimiento.count({
-      where: {
-        idSeguidor: usuario.id,
-      },
+      where: { idSeguidor: usuario.id },
     });
 
     res.render("usuario/perfil", {
       title: usuario.username,
-      usuario,
+      usuario: {
+        ...usuario.toJSON(),
+        avatar: avatarABase64(usuario.avatar),
+      },
       publicaciones,
       esMiPerfil: true,
       siguiendo: false,
@@ -126,18 +112,12 @@ export async function seguirUsuario(req, res) {
     }
 
     const seguimiento = await Seguimiento.findOne({
-      where: {
-        idSeguidor,
-        idSeguido,
-      },
+      where: { idSeguidor, idSeguido },
       paranoid: false,
     });
 
     if (!seguimiento) {
-      await Seguimiento.create({
-        idSeguidor,
-        idSeguido,
-      });
+      await Seguimiento.create({ idSeguidor, idSeguido });
     } else if (seguimiento.deletedAt) {
       await seguimiento.restore();
     }
@@ -172,31 +152,12 @@ export async function renderPerfilUsuario(req, res) {
     }
 
     const publicacionesBD = await Publicacion.findAll({
-      where: {
-        UsuarioId: usuario.id,
-      },
-      include: [
-        {
-          model: Imagen,
-          as: "imagenes",
-        },
-      ],
+      where: { UsuarioId: usuario.id },
+      include: [{ model: Imagen, as: "imagenes", include: [Valoracion] }],
       order: [["createdAt", "DESC"]],
     });
 
-    const publicaciones = publicacionesBD.map((pub) => {
-      const imagen = pub.imagenes?.[0];
-
-      return {
-        ...pub.toJSON(),
-        imagenBase64: imagen
-          ? `data:image/jpeg;base64,${Buffer.from(imagen.url).toString("base64")}`
-          : null,
-
-        promedioValoraciones: 0,
-        cantidadComentarios: 0,
-      };
-    });
+    const publicaciones = mapearPublicaciones(publicacionesBD);
 
     const siguiendo = await Seguimiento.findOne({
       where: {
@@ -206,38 +167,25 @@ export async function renderPerfilUsuario(req, res) {
     });
 
     const cantidadSeguidores = await Seguimiento.count({
-      where: {
-        idSeguido: usuario.id,
-      },
+      where: { idSeguido: usuario.id },
     });
 
     const cantidadSeguidos = await Seguimiento.count({
-      where: {
-        idSeguidor: usuario.id,
-      },
+      where: { idSeguidor: usuario.id },
     });
-
-    let avatarBase64 = null;
-
-    if (usuario.avatar) {
-      avatarBase64 = `data:image/jpeg;base64,${Buffer.from(
-        usuario.avatar,
-      ).toString("base64")}`;
-    }
 
     res.render("usuario/perfil", {
       title: usuario.username,
-      usuario,
+      usuario: {
+        ...usuario.toJSON(),
+        avatar: avatarABase64(usuario.avatar),
+      },
       publicaciones,
       esMiPerfil: false,
       siguiendo: !!siguiendo,
       cantidadPublicaciones: publicaciones.length,
       cantidadSeguidores,
       cantidadSeguidos,
-      usuario: {
-        ...usuario.toJSON(),
-        avatar: avatarBase64,
-      },
     });
   } catch (error) {
     console.error(error);
@@ -249,19 +197,11 @@ export async function mostrarEditarPerfil(req, res) {
   try {
     const usuario = await Usuario.findByPk(req.session.usuario.id);
 
-    let avatarBase64 = null;
-
-    if (usuario.avatar) {
-      avatarBase64 = `data:image/jpeg;base64,${Buffer.from(
-        usuario.avatar,
-      ).toString("base64")}`;
-    }
-
     res.render("usuario/editarPerfil", {
       title: "Editar Perfil",
       usuario: {
         ...usuario.toJSON(),
-        avatar: avatarBase64,
+        avatar: avatarABase64(usuario.avatar),
       },
     });
   } catch (error) {
@@ -280,18 +220,12 @@ export async function actualizarPerfil(req, res) {
 
     const { name, lastName, username, email, bio, eliminarAvatar } = req.body;
 
-    const usernameExistente = await Usuario.findOne({
-      where: { username },
-    });
-
+    const usernameExistente = await Usuario.findOne({ where: { username } });
     if (usernameExistente && usernameExistente.id !== usuario.id) {
       return res.send("El nombre de usuario ya existe");
     }
 
-    const emailExistente = await Usuario.findOne({
-      where: { email },
-    });
-
+    const emailExistente = await Usuario.findOne({ where: { email } });
     if (emailExistente && emailExistente.id !== usuario.id) {
       return res.send("El email ya existe");
     }
@@ -307,25 +241,58 @@ export async function actualizarPerfil(req, res) {
     }
 
     if (req.file) {
-      const avatarProcesado = await sharp(req.file.buffer)
-        .resize(512, 512, {
-          fit: "cover",
-        })
-        .jpeg({
-          quality: 85,
-        })
+      usuario.avatar = await sharp(req.file.buffer)
+        .resize(512, 512, { fit: "cover" })
+        .jpeg({ quality: 85 })
         .toBuffer();
-
-      usuario.avatar = avatarProcesado;
     }
 
     await usuario.save();
 
+    // Actualizar sesión con los nuevos datos
     req.session.usuario.username = usuario.username;
+    req.session.usuario.avatar = avatarABase64(usuario.avatar);
 
     return res.redirect("/usuario/perfil");
   } catch (error) {
     console.error(error);
     res.send("Error al actualizar perfil");
+  }
+}
+
+export async function mostrarSiguiendo(req, res) {
+  try {
+    const usuarioId = req.session.usuario.id;
+
+    const seguidos = await Seguimiento.findAll({
+      where: { idSeguidor: usuarioId },
+      attributes: ["idSeguido"],
+    });
+
+    const idsSeguidos = seguidos.map((s) => s.idSeguido);
+
+    let publicaciones = [];
+
+    if (idsSeguidos.length > 0) {
+      const pubs = await Publicacion.findAll({
+        where: { UsuarioId: idsSeguidos },
+        include: [
+          { model: Usuario },
+          { model: Imagen, as: "imagenes", include: [Valoracion] },
+        ],
+        order: [["createdAt", "DESC"]],
+      });
+
+      publicaciones = mapearPublicaciones(pubs);
+    }
+
+    res.render("usuario/siguiendo", {
+      title: "Publicaciones de usuarios que sigo",
+      publicaciones,
+      sinSeguidos: idsSeguidos.length === 0,
+    });
+  } catch (error) {
+    console.error(error);
+    res.send("Error al cargar publicaciones de seguidos");
   }
 }

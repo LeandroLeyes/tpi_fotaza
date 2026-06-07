@@ -16,6 +16,7 @@ import {
   renderPerfilUsuario,
   mostrarEditarPerfil,
   actualizarPerfil,
+  mostrarSiguiendo,
 } from "../controllers/usuario.controller.js";
 import upload from "../middlewares/upload.middleware.js";
 
@@ -25,6 +26,9 @@ usuario.use(isAuthenticated);
 
 // Home
 usuario.get("/home", mostrarHome);
+
+// Siguiendo
+usuario.get("/siguiendo", mostrarSiguiendo);
 
 // Perfil
 usuario.get("/perfil", renderPerfil);

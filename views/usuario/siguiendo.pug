@@ -1,0 +1,29 @@
+extends layout
+
+block content
+
+    .container-fluid.mt-4
+
+        h4.mb-4 Publicaciones de usuarios que sigo
+
+        if sinSeguidos
+
+            .text-center.py-5
+
+                i.bi.bi-people.fs-1.text-muted
+
+                p.text-muted.mt-3 Todavía no seguís a ningún usuario.
+
+                a.btn.btn-success(href="/buscar") Buscar usuarios
+
+        else if publicaciones.length === 0
+
+            .text-center.py-5
+
+                i.bi.bi-images.fs-1.text-muted
+
+                p.text-muted.mt-3 Los usuarios que seguís aún no publicaron nada.
+
+        else
+
+            include ../partials/publicGrid

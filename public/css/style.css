@@ -201,6 +201,9 @@ body{
     font-size: 14px;
 }
 
+.follow {
+    text-decoration: none;
+}
 
 /* Footer */
 .footer{

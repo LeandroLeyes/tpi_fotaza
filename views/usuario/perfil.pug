@@ -38,12 +38,13 @@ block content
 
                             .stat
                                 h4= cantidadSeguidos
-                                span Siguiendo
+                                a.follow(href="/usuario/siguiendo")
+                                    span Siguiendo
 
-                        if esMi
+                        if esMiPerfil 
 
                             a.btn.btn-outline-success(
-                                href="/usuario//editar"
+                                href="/usuario/perfil/editar"
                             )
                                 | Editar 
 
