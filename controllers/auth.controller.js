@@ -102,6 +102,14 @@ export async function inicioSesion(req, res) {
 
     const isValidated = await usuario.validatePassword(pass);
 
+    let avatarBase64 = null;
+
+    if (usuario.avatar) {
+      avatarBase64 = `data:image/jpeg;base64,${Buffer.from(
+        usuario.avatar,
+      ).toString("base64")}`;
+    }
+
     if (!isValidated) {
       res.status(400).render("auth/login", {
         alert: {
@@ -115,6 +123,7 @@ export async function inicioSesion(req, res) {
 
     req.session.usuario = {
       id: usuario.id,
+      avatar: avatarBase64,
     };
   } catch (error) {
     console.log("[!] Error en login: ", error);

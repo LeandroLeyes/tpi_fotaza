@@ -12,15 +12,19 @@ block content
 
                     .profile-avatar
 
-                        img.rounded-circle(
-                            src=usuarioPerfil.avatar || "/images/Patroclo.jpeg"
-                        )
+                        if usuario.avatar
+
+                            img.rounded-circle.shadow( src=usuario.avatar style="object-fit: cover;")
+
+                        else
+
+                            img.rounded-circle.shadow(src="/images/Patroclo.jpeg" style="object-fit: cover;")
 
                     .profile-info
 
-                        h2.mb-2= usuarioPerfil.username
+                        h2.mb-2= usuario.username
 
-                        p.text-muted.mb-3= usuarioPerfil.email
+                        p.text-muted.mb-3= usuario.email
 
                         .profile-stats
 
@@ -36,19 +40,19 @@ block content
                                 h4= cantidadSeguidos
                                 span Siguiendo
 
-                        if esMiPerfil
+                        if esMi
 
                             a.btn.btn-outline-success(
-                                href="/usuario/perfil/editar"
+                                href="/usuario//editar"
                             )
-                                | Editar perfil
+                                | Editar 
 
                         else
 
                             if siguiendo
 
                                 form(
-                                    action=`/usuario/dejar-seguir/${usuarioPerfil.id}`,
+                                    action=`/usuario/dejar-seguir/${usuario.id}`,
                                     method="POST"
                                 )
 
@@ -60,7 +64,7 @@ block content
                             else
 
                                 form(
-                                    action=`/usuario/seguir/${usuarioPerfil.id}`,
+                                    action=`/usuario/seguir/${usuario.id}`,
                                     method="POST"
                                 )
 

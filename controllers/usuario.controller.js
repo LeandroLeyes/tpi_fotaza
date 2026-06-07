@@ -3,6 +3,7 @@ import { Imagen } from "../models/imagen.js";
 import { Usuario } from "../models/usuario.js";
 import { Seguimiento } from "../models/seguimiento.js";
 import { Valoracion } from "../models/valoracion.js";
+import sharp from "sharp";
 
 export async function mostrarHome(req, res) {
   try {
@@ -57,11 +58,11 @@ export async function mostrarHome(req, res) {
 
 export async function renderPerfil(req, res) {
   try {
-    const usuarioPerfil = await Usuario.findByPk(req.session.usuario.id);
+    const usuario = await Usuario.findByPk(req.session.usuario.id);
 
     const publicacionesBD = await Publicacion.findAll({
       where: {
-        UsuarioId: usuarioPerfil.id,
+        UsuarioId: usuario.id,
       },
       include: [
         {
@@ -89,19 +90,19 @@ export async function renderPerfil(req, res) {
 
     const cantidadSeguidores = await Seguimiento.count({
       where: {
-        idSeguido: usuarioPerfil.id,
+        idSeguido: usuario.id,
       },
     });
 
     const cantidadSeguidos = await Seguimiento.count({
       where: {
-        idSeguidor: usuarioPerfil.id,
+        idSeguidor: usuario.id,
       },
     });
 
     res.render("usuario/perfil", {
-      title: usuarioPerfil.username,
-      usuarioPerfil,
+      title: usuario.username,
+      usuario,
       publicaciones,
       esMiPerfil: true,
       siguiendo: false,
@@ -164,15 +165,15 @@ export async function dejarDeSeguir(req, res) {
 
 export async function renderPerfilUsuario(req, res) {
   try {
-    const usuarioPerfil = await Usuario.findByPk(req.params.id);
+    const usuario = await Usuario.findByPk(req.params.id);
 
-    if (!usuarioPerfil) {
+    if (!usuario) {
       return res.redirect("/usuario/home");
     }
 
     const publicacionesBD = await Publicacion.findAll({
       where: {
-        UsuarioId: usuarioPerfil.id,
+        UsuarioId: usuario.id,
       },
       include: [
         {
@@ -200,34 +201,131 @@ export async function renderPerfilUsuario(req, res) {
     const siguiendo = await Seguimiento.findOne({
       where: {
         idSeguidor: req.session.usuario.id,
-        idSeguido: usuarioPerfil.id,
+        idSeguido: usuario.id,
       },
     });
 
     const cantidadSeguidores = await Seguimiento.count({
       where: {
-        idSeguido: usuarioPerfil.id,
+        idSeguido: usuario.id,
       },
     });
 
     const cantidadSeguidos = await Seguimiento.count({
       where: {
-        idSeguidor: usuarioPerfil.id,
+        idSeguidor: usuario.id,
       },
     });
 
+    let avatarBase64 = null;
+
+    if (usuario.avatar) {
+      avatarBase64 = `data:image/jpeg;base64,${Buffer.from(
+        usuario.avatar,
+      ).toString("base64")}`;
+    }
+
     res.render("usuario/perfil", {
-      title: usuarioPerfil.username,
-      usuarioPerfil,
+      title: usuario.username,
+      usuario,
       publicaciones,
       esMiPerfil: false,
       siguiendo: !!siguiendo,
       cantidadPublicaciones: publicaciones.length,
       cantidadSeguidores,
       cantidadSeguidos,
+      usuario: {
+        ...usuario.toJSON(),
+        avatar: avatarBase64,
+      },
     });
   } catch (error) {
     console.error(error);
     res.send("Error al mostrar perfil");
+  }
+}
+
+export async function mostrarEditarPerfil(req, res) {
+  try {
+    const usuario = await Usuario.findByPk(req.session.usuario.id);
+
+    let avatarBase64 = null;
+
+    if (usuario.avatar) {
+      avatarBase64 = `data:image/jpeg;base64,${Buffer.from(
+        usuario.avatar,
+      ).toString("base64")}`;
+    }
+
+    res.render("usuario/editarPerfil", {
+      title: "Editar Perfil",
+      usuario: {
+        ...usuario.toJSON(),
+        avatar: avatarBase64,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.send("Error al cargar perfil");
+  }
+}
+
+export async function actualizarPerfil(req, res) {
+  try {
+    const usuario = await Usuario.findByPk(req.session.usuario.id);
+
+    if (!usuario) {
+      return res.redirect("/usuario/home");
+    }
+
+    const { name, lastName, username, email, bio, eliminarAvatar } = req.body;
+
+    const usernameExistente = await Usuario.findOne({
+      where: { username },
+    });
+
+    if (usernameExistente && usernameExistente.id !== usuario.id) {
+      return res.send("El nombre de usuario ya existe");
+    }
+
+    const emailExistente = await Usuario.findOne({
+      where: { email },
+    });
+
+    if (emailExistente && emailExistente.id !== usuario.id) {
+      return res.send("El email ya existe");
+    }
+
+    usuario.name = name;
+    usuario.lastName = lastName;
+    usuario.username = username;
+    usuario.email = email;
+    usuario.bio = bio;
+
+    if (eliminarAvatar === "true") {
+      usuario.avatar = null;
+    }
+
+    if (req.file) {
+      const avatarProcesado = await sharp(req.file.buffer)
+        .resize(512, 512, {
+          fit: "cover",
+        })
+        .jpeg({
+          quality: 85,
+        })
+        .toBuffer();
+
+      usuario.avatar = avatarProcesado;
+    }
+
+    await usuario.save();
+
+    req.session.usuario.username = usuario.username;
+
+    return res.redirect("/usuario/perfil");
+  } catch (error) {
+    console.error(error);
+    res.send("Error al actualizar perfil");
   }
 }

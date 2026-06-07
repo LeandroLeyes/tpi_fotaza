@@ -146,6 +146,14 @@ export async function renderPublicacion(req, res) {
         (valoracion) => valoracion.UsuarioId === req.session.usuario.id,
       )?.puntaje || 0;
 
+    let avatarBase64 = null;
+
+    if (Comentario.Usuario.avatar) {
+      avatarBase64 = `data:image/jpeg;base64,${Buffer.from(
+        Comentario.Usuario.avatar,
+      ).toString("base64")}`;
+    }
+
     res.render("usuario/publicaciones/verPublicacion", {
       title: pub.titulo,
       publicacion: pub,
@@ -153,6 +161,9 @@ export async function renderPublicacion(req, res) {
       cantidadValoraciones,
       miValoracion,
       esPropietario,
+      Usuario: {
+        avatar: avatarBase64,
+      },
     });
   } catch (error) {
     console.error(error);

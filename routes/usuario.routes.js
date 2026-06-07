@@ -14,7 +14,10 @@ import {
   dejarDeSeguir,
   seguirUsuario,
   renderPerfilUsuario,
+  mostrarEditarPerfil,
+  actualizarPerfil,
 } from "../controllers/usuario.controller.js";
+import upload from "../middlewares/upload.middleware.js";
 
 const usuario = Router();
 
@@ -26,6 +29,10 @@ usuario.get("/home", mostrarHome);
 // Perfil
 usuario.get("/perfil", renderPerfil);
 
+usuario.get("/perfil/editar", mostrarEditarPerfil);
+
+usuario.post("/perfil/editar", upload.single("avatar"), actualizarPerfil);
+
 usuario.post("/seguir/:id", seguirUsuario);
 
 usuario.post("/dejar-seguir/:id", dejarDeSeguir);
@@ -35,7 +42,11 @@ usuario.get("/perfil/:id", renderPerfilUsuario);
 // Publicaciones
 usuario.get("/publicaciones/crear", mostrarFormPublicacion);
 
-usuario.post("/publicaciones/crear", crearPublicacion);
+usuario.post(
+  "/publicaciones/crear",
+  upload.array("imagenes", 10),
+  crearPublicacion,
+);
 
 usuario.get("/publicaciones/:id", renderPublicacion);
 

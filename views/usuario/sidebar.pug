@@ -4,26 +4,26 @@
 
     a.logo(href="/")
 
-      img(src="/images/fotaza-logo-1.png" width = "50px")
+      img(src="/images/fotaza-logo-1.png" width="50px")
 
   .sidebar-menu
 
-    a.sidebar-link.active(href="/usuario/home")
-      i.bi.bi-house-fill
+    a.sidebar-link(href="/usuario/home" class= isActive("/usuario/home") ? "active" : "")
+      i.bi.bi-house
 
-    a.sidebar-link(href="#")
+    a.sidebar-link(href="#" class=isActive("/usuario/coleccion") ? "active" : "")
       i.bi.bi-collection
 
-    a.sidebar-link(href="/usuario/publicaciones/crear")
+    a.sidebar-link(href="/usuario/publicaciones/crear"  class=isActive("/usuario/publicaciones/crear") ? "active" : "")
       i.bi.bi-plus-square
 
-    a.sidebar-link(href="#")
+    a.sidebar-link(href="#" class=isActive("/usuario/notificaciones") ? "active" : "")
       i.bi.bi-bell
 
-    a.sidebar-link(href="#")
+    a.sidebar-link(href="#" class=isActive("/usuario/chat") ? "active" : "")
       i.bi.bi-chat-dots
 
   .sidebar-bottom
 
-    a.sidebar-link(href="#")
+    a.sidebar-link(href="/usuario/configuracion" class=isActive("/usuario/configuracion") ? "active" : "")
       i.bi.bi-gear
