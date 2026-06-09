@@ -5,27 +5,31 @@ import routes from "./routes/views.routes.js";
 import { connectDatabase } from "./models/sync.js";
 import session from "express-session";
 import { sesionData } from "./middlewares/sesion.middleware.js";
-import multer from "multer";
 
-//CONSTANTES
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
+const enProduccion = process.env.NODE_ENV === "production";
+
 const app = express();
+
+app.set("trust proxy", 1);
 
 // MIDDLEWARES
 app.use(express.static("public"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false,
+      secure: enProduccion,
       maxAge: 24 * 60 * 60 * 1000,
     },
   }),
 );
+
 app.use(sesionData);
 
 // BOOTSTRAP
