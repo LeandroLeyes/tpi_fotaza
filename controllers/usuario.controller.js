@@ -7,7 +7,6 @@ import { Valoracion } from "../models/valoracion.js";
 import sharp from "sharp";
 import blobABase64 from "../helpers/blobAbase64.js";
 
-// Helper: mapea publicaciones de BD agregando imagenBase64 y promedioValoraciones
 function mapearPublicaciones(pubs) {
   return pubs.map((pub) => {
     const img = pub.imagenes?.[0];
@@ -35,7 +34,7 @@ function mapearPublicaciones(pubs) {
 
 export async function mostrarHome(req, res) {
   try {
-    const feed = req.query.feed; // "siguiendo" o undefined (para ti)
+    const feed = req.query.feed;
     const usuarioId = req.session.usuario.id;
 
     let publicaciones = [];
@@ -66,9 +65,7 @@ export async function mostrarHome(req, res) {
     } else {
       // Feed general — para ti
       const pubs = await Publicacion.findAll({
-        include: [
-          { model: Imagen, as: "imagenes", include: [Valoracion] },
-        ],
+        include: [{ model: Imagen, as: "imagenes", include: [Valoracion] }],
         order: [["createdAt", "DESC"]],
       });
       publicaciones = mapearPublicaciones(pubs);
@@ -241,7 +238,6 @@ export async function actualizarPerfil(req, res) {
       return res.redirect("/usuario/home");
     }
 
-    // Helper para volver al form con errores, siempre con perfilUsuario disponible
     const volverAlForm = (errores) =>
       res.status(400).render("usuario/editarPerfil", {
         title: "Editar Perfil",
@@ -253,7 +249,6 @@ export async function actualizarPerfil(req, res) {
         },
       });
 
-    // Validar con Zod
     const { editarPerfilSchema } = await import("../schemas/validaciones.js");
     const resultado = editarPerfilSchema.safeParse(req.body);
 

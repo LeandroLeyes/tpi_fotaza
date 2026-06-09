@@ -17,7 +17,12 @@ export async function crearPublicacion(req, res) {
   let publicacion = null;
 
   try {
-    const { titulo, descripcion, etiquetas, copyright: copyrightStr } = req.datosValidados;
+    const {
+      titulo,
+      descripcion,
+      etiquetas,
+      copyright: copyrightStr,
+    } = req.datosValidados;
     const usuarioId = req.session.usuario.id;
     const username = req.session.usuario.username;
     const copyright = copyrightStr === "true";
@@ -41,8 +46,8 @@ export async function crearPublicacion(req, res) {
 
         const watermarkSvg = Buffer.from(
           `<svg width="${svgWidth}" height="${svgHeight}" xmlns="http://www.w3.org/2000/svg">` +
-          `<text x="10" y="${fontSize}" font-size="${fontSize}" fill="white" opacity="0.8">© ${username}</text>` +
-          `</svg>`
+            `<text x="10" y="${fontSize}" font-size="${fontSize}" fill="white" opacity="0.8">© ${username}</text>` +
+            `</svg>`,
         );
 
         imagenProcesada = await sharp(archivo.buffer)
@@ -81,7 +86,10 @@ export async function crearPublicacion(req, res) {
     }
 
     return res.status(500).render("usuario/publicaciones/crearPublicacion", {
-      errores: { general: "Ocurrió un error al procesar las imágenes. Verificá el formato y tamaño." },
+      errores: {
+        general:
+          "Ocurrió un error al procesar las imágenes. Verificá el formato y tamaño.",
+      },
       formValues: req.body,
     });
   }
@@ -115,7 +123,6 @@ export async function renderPublicacion(req, res) {
 
     const pub = publicacion.toJSON();
 
-    // Convertir BLOB de imágenes a base64
     pub.imagenes = pub.imagenes.map((img) => ({
       ...img,
       imagenBase64: blobABase64(img.url),
@@ -128,7 +135,6 @@ export async function renderPublicacion(req, res) {
       })),
     }));
 
-    // Convertir avatar del autor de la publicación
     pub.Usuario = {
       ...pub.Usuario,
       avatar: blobABase64(pub.Usuario?.avatar),
@@ -157,7 +163,6 @@ export async function crearComentario(req, res) {
     const idImagen = req.params.idImagen;
     const { publicacionId } = req.body;
 
-    // Verificar que la imagen existe y obtener la publicación en una sola query
     const imagen = await Imagen.findByPk(idImagen, {
       include: [{ model: Publicacion }],
     });
@@ -170,7 +175,6 @@ export async function crearComentario(req, res) {
       return res.redirect(`/usuario/publicaciones/${imagen.PublicacionId}`);
     }
 
-    // Crear el comentario con las FKs directamente — más seguro que set() separados
     await Comentario.create({
       contenido: req.datosValidados.contenido,
       ImagenId: idImagen,
