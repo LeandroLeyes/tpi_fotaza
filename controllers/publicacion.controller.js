@@ -5,12 +5,7 @@ import { Usuario } from "../models/usuario.js";
 import { Comentario } from "../models/comentario.js";
 import { Valoracion } from "../models/valoracion.js";
 import sharp from "sharp";
-
-// Helper: convierte BLOB a string base64 listo para src=""
-function blobABase64(blob) {
-  if (!blob) return null;
-  return `data:image/jpeg;base64,${Buffer.from(blob).toString("base64")}`;
-}
+import blobABase64 from "../helpers/blobAbase64.js";
 
 export function mostrarFormPublicacion(req, res) {
   res.render("usuario/publicaciones/crearPublicacion", {
@@ -121,11 +116,9 @@ export async function renderPublicacion(req, res) {
 
     const pub = publicacion.toJSON();
 
-    // Convertir BLOB de imágenes a base64
     pub.imagenes = pub.imagenes.map((img) => ({
       ...img,
       imagenBase64: blobABase64(img.url),
-      // Convertir avatar de cada comentarista
       Comentarios: img.Comentarios?.map((c) => ({
         ...c,
         Usuario: {
@@ -135,42 +128,22 @@ export async function renderPublicacion(req, res) {
       })),
     }));
 
-    // Convertir avatar del autor de la publicación
     pub.Usuario = {
       ...pub.Usuario,
       avatar: blobABase64(pub.Usuario?.avatar),
     };
 
-    const imagen = pub.imagenes?.[0];
-
-    if (!imagen) {
+    if (!pub.imagenes || pub.imagenes.length === 0) {
       return res.redirect("/usuario/home");
     }
 
     const esPropietario = publicacion.UsuarioId === req.session.usuario.id;
 
-    const cantidadValoraciones = imagen.Valoracions.length;
-
-    const promedioValoraciones =
-      cantidadValoraciones > 0
-        ? imagen.Valoracions.reduce(
-            (suma, valoracion) => suma + valoracion.puntaje,
-            0,
-          ) / cantidadValoraciones
-        : 0;
-
-    const miValoracion =
-      imagen.Valoracions.find(
-        (valoracion) => valoracion.UsuarioId === req.session.usuario.id,
-      )?.puntaje || 0;
-
     res.render("usuario/publicaciones/verPublicacion", {
       title: pub.titulo,
       publicacion: pub,
-      promedioValoraciones,
-      cantidadValoraciones,
-      miValoracion,
       esPropietario,
+      miUsuarioId: req.session.usuario.id,
     });
   } catch (error) {
     console.error(error);

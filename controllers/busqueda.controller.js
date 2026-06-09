@@ -6,6 +6,7 @@ import { Publicacion } from "../models/publicacion.js";
 import { Imagen } from "../models/imagen.js";
 import { Comentario } from "../models/comentario.js";
 import { Valoracion } from "../models/valoracion.js";
+import blobABase64 from "../helpers/blobAbase64.js";
 
 export async function buscarContenido(req, res) {
   try {
@@ -98,6 +99,10 @@ export async function buscarContenido(req, res) {
         promedioValoraciones,
         cantidadComentarios,
       };
+    });
+
+    usuarios.forEach((usuario) => {
+      usuario.avatar = blobABase64(usuario.avatar);
     });
 
     const sinResultados =

@@ -5,14 +5,8 @@ import { Usuario } from "../models/usuario.js";
 import { Seguimiento } from "../models/seguimiento.js";
 import { Valoracion } from "../models/valoracion.js";
 import sharp from "sharp";
+import blobABase64 from "../helpers/blobAbase64.js";
 
-// Helper: convierte BLOB de avatar a string base64 listo para src=""
-function avatarABase64(blob) {
-  if (!blob) return null;
-  return `data:image/jpeg;base64,${Buffer.from(blob).toString("base64")}`;
-}
-
-// Helper: mapea publicaciones de BD agregando imagenBase64 y promedioValoraciones
 function mapearPublicaciones(pubs) {
   return pubs.map((pub) => {
     const img = pub.imagenes?.[0];
@@ -32,7 +26,7 @@ function mapearPublicaciones(pubs) {
 
     return {
       ...pub.toJSON(),
-      imagenBase64: img?.url ? avatarABase64(img.url) : null,
+      imagenBase64: img?.url ? blobABase64(img.url) : null,
       promedioValoraciones,
     };
   });
@@ -40,22 +34,48 @@ function mapearPublicaciones(pubs) {
 
 export async function mostrarHome(req, res) {
   try {
-    const pubs = await Publicacion.findAll({
-      include: [
-        {
-          model: Imagen,
-          as: "imagenes",
-          include: [Valoracion],
-        },
-      ],
-      order: [["createdAt", "DESC"]],
-    });
+    const feed = req.query.feed; // "siguiendo" o undefined (para ti)
+    const usuarioId = req.session.usuario.id;
 
-    const publicaciones = mapearPublicaciones(pubs);
+    let publicaciones = [];
+    let sinSeguidos = false;
+
+    if (feed === "siguiendo") {
+      // Feed de usuarios seguidos
+      const seguidos = await Seguimiento.findAll({
+        where: { idSeguidor: usuarioId },
+        attributes: ["idSeguido"],
+      });
+
+      const idsSeguidos = seguidos.map((s) => s.idSeguido);
+
+      if (idsSeguidos.length === 0) {
+        sinSeguidos = true;
+      } else {
+        const pubs = await Publicacion.findAll({
+          where: { UsuarioId: idsSeguidos },
+          include: [
+            { model: Usuario },
+            { model: Imagen, as: "imagenes", include: [Valoracion] },
+          ],
+          order: [["createdAt", "DESC"]],
+        });
+        publicaciones = mapearPublicaciones(pubs);
+      }
+    } else {
+      // Feed general — para ti
+      const pubs = await Publicacion.findAll({
+        include: [{ model: Imagen, as: "imagenes", include: [Valoracion] }],
+        order: [["createdAt", "DESC"]],
+      });
+      publicaciones = mapearPublicaciones(pubs);
+    }
 
     res.render("usuario/home", {
       title: "Inicio",
       publicaciones,
+      activoTab: feed === "siguiendo" ? "siguiendo" : "todos",
+      sinSeguidos,
     });
   } catch (error) {
     console.error("Error cargando home:", error);
@@ -85,9 +105,9 @@ export async function renderPerfil(req, res) {
 
     res.render("usuario/perfil", {
       title: usuario.username,
-      usuario: {
+      perfilUsuario: {
         ...usuario.toJSON(),
-        avatar: avatarABase64(usuario.avatar),
+        avatar: blobABase64(usuario.avatar),
       },
       publicaciones,
       esMiPerfil: true,
@@ -176,9 +196,9 @@ export async function renderPerfilUsuario(req, res) {
 
     res.render("usuario/perfil", {
       title: usuario.username,
-      usuario: {
+      perfilUsuario: {
         ...usuario.toJSON(),
-        avatar: avatarABase64(usuario.avatar),
+        avatar: blobABase64(usuario.avatar),
       },
       publicaciones,
       esMiPerfil: false,
@@ -199,9 +219,9 @@ export async function mostrarEditarPerfil(req, res) {
 
     res.render("usuario/editarPerfil", {
       title: "Editar Perfil",
-      usuario: {
+      perfilUsuario: {
         ...usuario.toJSON(),
-        avatar: avatarABase64(usuario.avatar),
+        avatar: blobABase64(usuario.avatar),
       },
     });
   } catch (error) {
@@ -249,9 +269,8 @@ export async function actualizarPerfil(req, res) {
 
     await usuario.save();
 
-    // Actualizar sesión con los nuevos datos
     req.session.usuario.username = usuario.username;
-    req.session.usuario.avatar = avatarABase64(usuario.avatar);
+    req.session.usuario.avatar = blobABase64(usuario.avatar);
 
     return res.redirect("/usuario/perfil");
   } catch (error) {
