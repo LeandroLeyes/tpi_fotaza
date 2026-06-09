@@ -14,14 +14,15 @@ export function mostrarFormPublicacion(req, res) {
 }
 
 export async function crearPublicacion(req, res) {
+  let publicacion = null;
+
   try {
-    const { titulo, descripcion, etiquetas } = req.body;
+    const { titulo, descripcion, etiquetas, copyright: copyrightStr } = req.datosValidados;
     const usuarioId = req.session.usuario.id;
     const username = req.session.usuario.username;
+    const copyright = copyrightStr === "true";
 
-    const copyright = req.body.copyright === "true";
-
-    const publicacion = await Publicacion.create({
+    publicacion = await Publicacion.create({
       titulo,
       descripcion,
       UsuarioId: usuarioId,
@@ -31,27 +32,21 @@ export async function crearPublicacion(req, res) {
       let imagenProcesada;
 
       if (copyright) {
+        const metadata = await sharp(archivo.buffer).metadata();
+        const imgWidth = metadata.width || 800;
+
+        const svgWidth = Math.min(imgWidth, 400);
+        const fontSize = Math.max(14, Math.round(svgWidth / 16));
+        const svgHeight = fontSize + 20;
+
+        const watermarkSvg = Buffer.from(
+          `<svg width="${svgWidth}" height="${svgHeight}" xmlns="http://www.w3.org/2000/svg">` +
+          `<text x="10" y="${fontSize}" font-size="${fontSize}" fill="white" opacity="0.8">© ${username}</text>` +
+          `</svg>`
+        );
+
         imagenProcesada = await sharp(archivo.buffer)
-          .composite([
-            {
-              input: Buffer.from(
-                `
-                <svg width="400" height="50">
-                  <text
-                    x="10"
-                    y="35"
-                    font-size="24"
-                    fill="white"
-                    opacity="0.8"
-                  >
-                    © ${username}
-                  </text>
-                </svg>
-                `,
-              ),
-              gravity: "southeast",
-            },
-          ])
+          .composite([{ input: watermarkSvg, gravity: "southeast" }])
           .jpeg()
           .toBuffer();
       } else {
@@ -72,10 +67,7 @@ export async function crearPublicacion(req, res) {
         .filter((e) => e.length > 0);
 
       for (const nombre of nombresEtiquetas) {
-        const [etiqueta] = await Etiqueta.findOrCreate({
-          where: { nombre },
-        });
-
+        const [etiqueta] = await Etiqueta.findOrCreate({ where: { nombre } });
         await publicacion.addEtiqueta(etiqueta);
       }
     }
@@ -84,7 +76,14 @@ export async function crearPublicacion(req, res) {
   } catch (error) {
     console.error("Error al crear publicación:", error);
 
-    return res.status(500).send("Error al crear publicación: " + error.message);
+    if (publicacion?.id) {
+      await publicacion.destroy().catch(() => {});
+    }
+
+    return res.status(500).render("usuario/publicaciones/crearPublicacion", {
+      errores: { general: "Ocurrió un error al procesar las imágenes. Verificá el formato y tamaño." },
+      formValues: req.body,
+    });
   }
 }
 
@@ -116,10 +115,11 @@ export async function renderPublicacion(req, res) {
 
     const pub = publicacion.toJSON();
 
+    // Convertir BLOB de imágenes a base64
     pub.imagenes = pub.imagenes.map((img) => ({
       ...img,
       imagenBase64: blobABase64(img.url),
-      Comentarios: img.Comentarios?.map((c) => ({
+      Comentarios: (img.Comentarios || []).map((c) => ({
         ...c,
         Usuario: {
           ...c.Usuario,
@@ -128,6 +128,7 @@ export async function renderPublicacion(req, res) {
       })),
     }));
 
+    // Convertir avatar del autor de la publicación
     pub.Usuario = {
       ...pub.Usuario,
       avatar: blobABase64(pub.Usuario?.avatar),
@@ -153,31 +154,33 @@ export async function renderPublicacion(req, res) {
 
 export async function crearComentario(req, res) {
   try {
-    const publicacion = await Publicacion.findByPk(req.body.publicacionId);
+    const idImagen = req.params.idImagen;
+    const { publicacionId } = req.body;
 
-    if (!publicacion.comentariosActivo) {
-      req.flash("error", "Los comentarios están cerrados");
-
-      return res.redirect(`/usuario/publicaciones/${publicacion.id}`);
-    }
-
-    const usuario = req.session.usuario;
-
-    const comentario = await Comentario.create({
-      contenido: req.body.contenido,
+    // Verificar que la imagen existe y obtener la publicación en una sola query
+    const imagen = await Imagen.findByPk(idImagen, {
+      include: [{ model: Publicacion }],
     });
 
-    await comentario.setUsuario(usuario.id);
+    if (!imagen) {
+      return res.redirect(`/usuario/publicaciones/${publicacionId}`);
+    }
 
-    await comentario.setImagen(req.params.idImagen);
+    if (!imagen.Publicacion.comentariosActivo) {
+      return res.redirect(`/usuario/publicaciones/${imagen.PublicacionId}`);
+    }
 
-    const imagen = await Imagen.findByPk(req.params.idImagen);
+    // Crear el comentario con las FKs directamente — más seguro que set() separados
+    await Comentario.create({
+      contenido: req.datosValidados.contenido,
+      ImagenId: idImagen,
+      UsuarioId: req.session.usuario.id,
+    });
 
     return res.redirect(`/usuario/publicaciones/${imagen.PublicacionId}`);
   } catch (error) {
-    console.error(error);
-
-    res.send("Error al crear comentario");
+    console.error("Error al crear comentario:", error);
+    return res.redirect(`/usuario/publicaciones/${req.body.publicacionId}`);
   }
 }
 

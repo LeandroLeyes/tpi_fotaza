@@ -7,6 +7,7 @@ import { Valoracion } from "../models/valoracion.js";
 import sharp from "sharp";
 import blobABase64 from "../helpers/blobAbase64.js";
 
+// Helper: mapea publicaciones de BD agregando imagenBase64 y promedioValoraciones
 function mapearPublicaciones(pubs) {
   return pubs.map((pub) => {
     const img = pub.imagenes?.[0];
@@ -65,7 +66,9 @@ export async function mostrarHome(req, res) {
     } else {
       // Feed general — para ti
       const pubs = await Publicacion.findAll({
-        include: [{ model: Imagen, as: "imagenes", include: [Valoracion] }],
+        include: [
+          { model: Imagen, as: "imagenes", include: [Valoracion] },
+        ],
         order: [["createdAt", "DESC"]],
       });
       publicaciones = mapearPublicaciones(pubs);
@@ -238,16 +241,42 @@ export async function actualizarPerfil(req, res) {
       return res.redirect("/usuario/home");
     }
 
-    const { name, lastName, username, email, bio, eliminarAvatar } = req.body;
+    // Helper para volver al form con errores, siempre con perfilUsuario disponible
+    const volverAlForm = (errores) =>
+      res.status(400).render("usuario/editarPerfil", {
+        title: "Editar Perfil",
+        errores,
+        formValues: req.body,
+        perfilUsuario: {
+          ...usuario.toJSON(),
+          avatar: blobABase64(usuario.avatar),
+        },
+      });
 
-    const usernameExistente = await Usuario.findOne({ where: { username } });
-    if (usernameExistente && usernameExistente.id !== usuario.id) {
-      return res.send("El nombre de usuario ya existe");
+    // Validar con Zod
+    const { editarPerfilSchema } = await import("../schemas/validaciones.js");
+    const resultado = editarPerfilSchema.safeParse(req.body);
+
+    if (!resultado.success) {
+      const { formatearErrores } = await import("../schemas/validaciones.js");
+      return volverAlForm(formatearErrores(resultado.error));
     }
 
-    const emailExistente = await Usuario.findOne({ where: { email } });
+    const { name, lastName, username, email, bio } = resultado.data;
+    const { eliminarAvatar } = req.body;
+
+    // Verificar unicidad de username y email
+    const [usernameExistente, emailExistente] = await Promise.all([
+      Usuario.findOne({ where: { username } }),
+      Usuario.findOne({ where: { email } }),
+    ]);
+
+    if (usernameExistente && usernameExistente.id !== usuario.id) {
+      return volverAlForm({ username: "Ese nombre de usuario ya está en uso" });
+    }
+
     if (emailExistente && emailExistente.id !== usuario.id) {
-      return res.send("El email ya existe");
+      return volverAlForm({ email: "Ese correo ya está registrado" });
     }
 
     usuario.name = name;
@@ -270,6 +299,7 @@ export async function actualizarPerfil(req, res) {
     await usuario.save();
 
     req.session.usuario.username = usuario.username;
+    req.session.usuario.name = usuario.name;
     req.session.usuario.avatar = blobABase64(usuario.avatar);
 
     return res.redirect("/usuario/perfil");

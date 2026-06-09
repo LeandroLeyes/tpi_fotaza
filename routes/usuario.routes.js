@@ -19,6 +19,11 @@ import {
   mostrarSiguiendo,
 } from "../controllers/usuario.controller.js";
 import upload from "../middlewares/upload.middleware.js";
+import { validar, validarYRedirigir, validarConArchivos } from "../middlewares/validar.middleware.js";
+import {
+  publicacionSchema,
+  comentarioSchema,
+} from "../schemas/validaciones.js";
 
 const usuario = Router();
 
@@ -32,32 +37,36 @@ usuario.get("/siguiendo", mostrarSiguiendo);
 
 // Perfil
 usuario.get("/perfil", renderPerfil);
-
 usuario.get("/perfil/editar", mostrarEditarPerfil);
-
-usuario.post("/perfil/editar", upload.single("avatar"), actualizarPerfil);
-
+usuario.post(
+  "/perfil/editar",
+  upload.single("avatar"),
+  actualizarPerfil,
+);
 usuario.post("/seguir/:id", seguirUsuario);
-
 usuario.post("/dejar-seguir/:id", dejarDeSeguir);
-
 usuario.get("/perfil/:id", renderPerfilUsuario);
 
 // Publicaciones
 usuario.get("/publicaciones/crear", mostrarFormPublicacion);
-
 usuario.post(
   "/publicaciones/crear",
   upload.array("imagenes", 10),
+  validarConArchivos(publicacionSchema, "usuario/publicaciones/crearPublicacion"),
   crearPublicacion,
 );
-
 usuario.get("/publicaciones/:id", renderPublicacion);
-
 usuario.post("/publicaciones/:id/comentarios", cambiarEstadoComentarios);
 
 // Comentarios
-usuario.post("/comentarios/:idImagen", crearComentario);
+usuario.post(
+  "/comentarios/:idImagen",
+  validarYRedirigir(
+    comentarioSchema,
+    (req) => `/usuario/publicaciones/${req.body.publicacionId}`,
+  ),
+  crearComentario,
+);
 
 // Valoraciones
 usuario.post("/valoraciones/:idImagen", valorarImagen);

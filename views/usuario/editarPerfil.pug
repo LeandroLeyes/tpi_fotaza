@@ -12,8 +12,7 @@ block content
 
                     .card-header.bg-white
 
-                        h3.mb-0
-                            | Editar Perfil
+                        h3.mb-0 Editar Perfil
 
                     .card-body
 
@@ -45,8 +44,7 @@ block content
 
                             .mb-4
 
-                                label.form-label
-                                    | Avatar
+                                label.form-label Avatar
 
                                 input.form-control(
                                     type="file"
@@ -63,75 +61,82 @@ block content
                                         id="eliminarAvatar"
                                     )
 
-                                    label.form-check-label(
-                                        for="eliminarAvatar"
-                                    )
+                                    label.form-check-label(for="eliminarAvatar")
                                         | Eliminar avatar actual
 
                             .row
 
                                 .col-md-6.mb-3
 
-                                    label.form-label
-                                        | Nombre
+                                    label.form-label Nombre
 
                                     input.form-control(
                                         type="text"
                                         name="name"
-                                        value=perfilUsuario.name
-                                        required
+                                        value= formValues ? formValues.name : perfilUsuario.name
+                                        class= errores && errores.name ? 'is-invalid' : ''
                                     )
+
+                                    if errores && errores.name
+                                        .invalid-feedback #{errores.name}
 
                                 .col-md-6.mb-3
 
-                                    label.form-label
-                                        | Apellido
+                                    label.form-label Apellido
 
                                     input.form-control(
                                         type="text"
                                         name="lastName"
-                                        value=perfilUsuario.lastName
-                                        required
+                                        value= formValues ? formValues.lastName : perfilUsuario.lastName
+                                        class= errores && errores.lastName ? 'is-invalid' : ''
                                     )
+
+                                    if errores && errores.lastName
+                                        .invalid-feedback #{errores.lastName}
 
                             .mb-3
 
-                                label.form-label
-                                    | Nombre de usuario
+                                label.form-label Nombre de usuario
 
                                 input.form-control(
                                     type="text"
                                     name="username"
-                                    value=perfilUsuario.username
-                                    required
+                                    value= formValues ? formValues.username : perfilUsuario.username
+                                    class= errores && errores.username ? 'is-invalid' : ''
                                 )
+
+                                if errores && errores.username
+                                    .invalid-feedback #{errores.username}
 
                             .mb-3
 
-                                label.form-label
-                                    | Correo electrónico
+                                label.form-label Correo electrónico
 
                                 input.form-control(
                                     type="email"
                                     name="email"
-                                    value=perfilUsuario.email
-                                    required
+                                    value= formValues ? formValues.email : perfilUsuario.email
+                                    class= errores && errores.email ? 'is-invalid' : ''
                                 )
+
+                                if errores && errores.email
+                                    .invalid-feedback #{errores.email}
 
                             .mb-4
 
-                                label.form-label
-                                    | Biografía
+                                label.form-label Biografía
 
                                 textarea.form-control(
                                     name="bio"
                                     rows="5"
                                     placeholder="Cuéntale algo a la comunidad sobre ti..."
-                                )= perfilUsuario.bio
+                                    class= errores && errores.bio ? 'is-invalid' : ''
+                                )= formValues ? formValues.bio : perfilUsuario.bio
+
+                                if errores && errores.bio
+                                    .invalid-feedback #{errores.bio}
 
                             .d-grid
 
-                                button.btn.btn-success.btn-lg(
-                                    type="submit"
-                                )
+                                button.btn.btn-success.btn-lg(type="submit")
                                     | Guardar cambios

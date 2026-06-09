@@ -9,116 +9,67 @@ export async function registerForm(req, res) {
 }
 
 export async function registroUsuario(req, res) {
-  const { username, name, lastName, email, password, confirmPassword } =
-    req.body;
+  const { username, name, lastName, email, password } = req.datosValidados;
 
-  const nombre = name.trim();
-  const apellido = lastName.trim();
-  const mail = email.trim();
-  const pass = password.trim();
-  const confirmPass = confirmPassword.trim();
-
-  if (!nombre || !apellido || !mail || !pass || !confirmPass) {
-    res.status(400).render("auth/register", {
-      alert: {
-        status: "error",
-        text: "No deben haber campos vacios",
-      },
-      formValues: req.body,
-    });
-  }
-
-  if (pass !== confirmPass) {
-    res.status(400).render("auth/register", {
-      alert: {
-        status: "error",
-        text: "Las contrasenas no coinciden",
-      },
-      formValues: req.body,
-    });
-  }
   try {
-    const validarUsername = await Usuario.findOne({
-      where: { username: username },
-    });
-    const validarEmail = await Usuario.findOne({
-      where: { email: email },
-    });
+    const [usuarioExistente, emailExistente] = await Promise.all([
+      Usuario.findOne({ where: { username } }),
+      Usuario.findOne({ where: { email } }),
+    ]);
 
-    if (validarEmail || validarUsername) {
-      return res.redirect("/auth/register");
+    if (usuarioExistente) {
+      return res.status(400).render("auth/register", {
+        errores: { username: "Ese nombre de usuario ya está en uso" },
+        formValues: req.body,
+      });
     }
 
-    await Usuario.create({
-      name: nombre,
-      lastName: apellido,
-      username: username,
-      email: mail,
-      password: pass,
-    });
+    if (emailExistente) {
+      return res.status(400).render("auth/register", {
+        errores: { email: "Ese correo ya está registrado" },
+        formValues: req.body,
+      });
+    }
+
+    await Usuario.create({ name, lastName, username, email, password });
 
     return res.redirect("/auth/login");
   } catch (error) {
-    console.log(error);
-    res.status(500).render("auth/register", {
-      alert: {
-        status: "error",
-        text: "Hubo un error al crear el usuario",
+    console.error(error);
+    return res.status(500).render("auth/register", {
+      errores: {
+        general: "Hubo un error al crear el usuario. Intentá de nuevo.",
       },
       formValues: req.body,
     });
-    return;
   }
 }
 
 export async function inicioSesion(req, res) {
-  const { email, password } = req.body;
-  const mail = email.trim();
-  const pass = password.trim();
-
-  if (!mail || !pass) {
-    res.status(400).render("auth/login", {
-      alert: {
-        status: "error",
-        text: "Complete todos los campos",
-      },
-      formValues: req.body,
-    });
-    return;
-  }
+  const { email, password } = req.datosValidados;
 
   try {
-    const usuario = await Usuario.findOne({ where: { email: email } });
+    const usuario = await Usuario.findOne({ where: { email } });
+
     if (!usuario) {
-      res.status(400).render("auth/login", {
-        alert: {
-          status: "error",
-          text: "Usuario o contrasena incorrecta.",
-        },
+      return res.status(400).render("auth/login", {
+        errores: { general: "Usuario o contraseña incorrectos" },
         formValues: req.body,
       });
-      return;
     }
 
-    const isValidated = await usuario.validatePassword(pass);
-
-    let avatarBase64 = null;
-
-    if (usuario.avatar) {
-      avatarBase64 = `data:image/jpeg;base64,${Buffer.from(
-        usuario.avatar,
-      ).toString("base64")}`;
-    }
+    const isValidated = await usuario.validatePassword(password);
 
     if (!isValidated) {
-      res.status(400).render("auth/login", {
-        alert: {
-          status: "error",
-          text: "Usuario o contrasena incorrecta.",
-        },
+      return res.status(400).render("auth/login", {
+        errores: { general: "Usuario o contraseña incorrectos" },
         formValues: req.body,
       });
-      return;
+    }
+
+    let avatarBase64 = null;
+    if (usuario.avatar) {
+      avatarBase64 = `data:image/jpeg;base64,${Buffer.from(usuario.avatar).toString("base64")}`;
     }
 
     req.session.usuario = {
@@ -128,19 +79,17 @@ export async function inicioSesion(req, res) {
       rol: usuario.rol,
       avatar: avatarBase64,
     };
+
+    return res.redirect("/usuario/home");
   } catch (error) {
-    console.log("[!] Error en login: ", error);
-    res.status(500).render("auth/login", {
-      alert: {
-        status: "error",
-        text: "Hubo un error al iniciar sesion",
+    console.error("[!] Error en login:", error);
+    return res.status(500).render("auth/login", {
+      errores: {
+        general: "Hubo un error al iniciar sesión. Intenta de nuevo.",
       },
       formValues: req.body,
     });
-    return;
   }
-
-  res.redirect("/usuario/home");
 }
 
 export function finSesion(req, res) {
@@ -149,7 +98,6 @@ export function finSesion(req, res) {
       console.error("Error al cerrar sesión:", error);
       return res.redirect("/usuario/home");
     }
-
     res.clearCookie("connect.sid");
     return res.redirect("/auth/login");
   });

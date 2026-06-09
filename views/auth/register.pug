@@ -8,49 +8,83 @@ block content
 
       .text-center.mb-4
 
-        img(src="/images/fotaza-logo-1.png" width = "50px")
+        img(src="/images/fotaza-logo-1.png" width="50px")
 
-        h2.mt-3
-          | Crear cuenta
+        h2.mt-3 Crear cuenta
 
-        p.text-muted
-          | Unite a Fotaza
+        p.text-muted Unite a Fotaza
 
+      include ../partials/alert
+      +alert(errores && errores.general ? { status: 'error', text: errores.general } : undefined)
 
-      form(action= "/auth/register", method="post")
-
-        .mb-3
-
-          input.form-control.auth-input(type="text", name="username", placeholder="Nombre de usuario")
+      form(action="/auth/register", method="post")
 
         .mb-3
-
-          input.form-control.auth-input(type="text", name="name", placeholder="Nombre")
+          input.form-control.auth-input(
+            type="text",
+            name="username",
+            placeholder="Nombre de usuario",
+            value=formValues && formValues.username,
+            class= errores && errores.username ? 'is-invalid' : ''
+          )
+          if errores && errores.username
+            .invalid-feedback #{errores.username}
 
         .mb-3
-
-          input.form-control.auth-input(type="text", name="lastName", placeholder="Apellido")
+          input.form-control.auth-input(
+            type="text",
+            name="name",
+            placeholder="Nombre",
+            value=formValues && formValues.name,
+            class= errores && errores.name ? 'is-invalid' : ''
+          )
+          if errores && errores.name
+            .invalid-feedback #{errores.name}
 
         .mb-3
+          input.form-control.auth-input(
+            type="text",
+            name="lastName",
+            placeholder="Apellido",
+            value=formValues && formValues.lastName,
+            class= errores && errores.lastName ? 'is-invalid' : ''
+          )
+          if errores && errores.lastName
+            .invalid-feedback #{errores.lastName}
 
-          input.form-control.auth-input(type="email", name="email", placeholder="Correo electrónico")
+        .mb-3
+          input.form-control.auth-input(
+            type="email",
+            name="email",
+            placeholder="Correo electrónico",
+            value=formValues && formValues.email,
+            class= errores && errores.email ? 'is-invalid' : ''
+          )
+          if errores && errores.email
+            .invalid-feedback #{errores.email}
+
+        .mb-3
+          input.form-control.auth-input(
+            type="password",
+            name="password",
+            placeholder="Contraseña",
+            class= errores && errores.password ? 'is-invalid' : ''
+          )
+          if errores && errores.password
+            .invalid-feedback #{errores.password}
 
         .mb-4
+          input.form-control.auth-input(
+            type="password",
+            name="confirmPassword",
+            placeholder="Confirme la contraseña",
+            class= errores && errores.confirmPassword ? 'is-invalid' : ''
+          )
+          if errores && errores.confirmPassword
+            .invalid-feedback #{errores.confirmPassword}
 
-          input.form-control.auth-input(type="password", name="password", placeholder="Contraseña")
-
-        .mb-4
-
-          input.form-control.auth-input(type="password", name="confirmPassword", placeholder="Confirme la contraseña")
-
-        button.btn.auth-btn.w-100(type="submit")
-          | Registrarse
-
+        button.btn.auth-btn.w-100(type="submit") Registrarse
 
       .text-center.mt-4
-
-        span.text-muted
-          | ¿Ya tienes cuenta?
-
-        a.ms-2.auth-link(href="/auth/login")
-          | Inicia sesión
+        span.text-muted ¿Ya tienes cuenta?
+        a.ms-2.auth-link(href="/auth/login") Inicia sesión

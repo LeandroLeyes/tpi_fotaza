@@ -1,30 +1,72 @@
 extends ../layout
 
 block content
+
   .container.mt-4
-    h2 Crear publicación
+
+    h2.mb-4 Crear publicación
 
     form(action="/usuario/publicaciones/crear" method="post" enctype="multipart/form-data")
-      
+
+      if errores && errores.general
+        include ../../partials/alert
+        +alert({ status: 'error', text: errores.general })
+
       .mb-3
-        label.form-label Título
-        input.form-control(type="text" name="titulo" required)
+        label.form-label Título *
+        input.form-control(
+          type="text",
+          name="titulo",
+          value=formValues && formValues.titulo,
+          class= errores && errores.titulo ? 'is-invalid' : ''
+        )
+        if errores && errores.titulo
+          .invalid-feedback #{errores.titulo}
 
       .mb-3
         label.form-label Descripción
-        textarea.form-control(name="descripcion" rows="3")
+        textarea.form-control(
+          name="descripcion",
+          rows="3",
+          class= errores && errores.descripcion ? 'is-invalid' : ''
+        )= formValues && formValues.descripcion
+        if errores && errores.descripcion
+          .invalid-feedback #{errores.descripcion}
 
       .mb-3
-        label.form-label Imagen
-        input.form-control(type="file" name="imagenes" accept="image/*" multiple required)
+        label.form-label Imágenes *
+        input.form-control(
+          type="file",
+          name="imagenes",
+          accept="image/*",
+          multiple,
+          class= errores && errores.imagenes ? 'is-invalid' : ''
+        )
+        .form-text Solo se permiten JPG, PNG, WEBP o GIF. Máximo 10MB por imagen.
+        if errores && errores.imagenes
+          .invalid-feedback #{errores.imagenes}
 
       .mb-3
-        label.form-label Etiquetas (separadas por coma)
-        input.form-control(type="text" name="etiquetas" placeholder="foto, viaje, naturaleza")
+        label.form-label Etiquetas
+        input.form-control(
+          type="text",
+          name="etiquetas",
+          placeholder="foto, viaje, naturaleza",
+          value=formValues && formValues.etiquetas,
+          class= errores && errores.etiquetas ? 'is-invalid' : ''
+        )
+        .form-text Separadas por coma. Máximo 10 etiquetas.
+        if errores && errores.etiquetas
+          .invalid-feedback #{errores.etiquetas}
 
-      .mb-3
+      .mb-4
         .form-check
-            input.form-check-input(type="checkbox" name="copyright" value="true")
-            label.form-check-label Aplicar marca de agua (© mi usuario)  
+          input.form-check-input(
+            type="checkbox",
+            name="copyright",
+            value="true",
+            checked=formValues && formValues.copyright === 'true'
+          )
+          label.form-check-label Aplicar marca de agua (© mi usuario)
 
       button.btn.btn-primary(type="submit") Publicar
