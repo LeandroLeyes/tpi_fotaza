@@ -2,4 +2,58 @@ extends layout
 
 block content
 
-    include ../partials/publicGrid
+    .feed-header
+
+        .feed-toggle
+
+            a.feed-tab(
+                href="/usuario/home",
+                class= activoTab === 'todos' ? 'active' : ''
+            ) Para ti
+
+            a.feed-tab(
+                href="/usuario/home?feed=siguiendo",
+                class= activoTab === 'siguiendo' ? 'active' : ''
+            )
+                i.bi.bi-people-fill.me-1
+                | Siguiendo
+
+        .feed-toggle-indicator(class= activoTab === 'siguiendo' ? 'right' : 'left')
+
+    if activoTab === 'siguiendo'
+
+        if sinSeguidos
+
+            .empty-feed
+
+                i.bi.bi-people.empty-feed-icon
+
+                p.empty-feed-text Todavía no seguís a ningún usuario.
+
+                a.btn.btn-success.rounded-pill.px-4(href="/buscar") Buscar usuarios
+
+        else if !publicaciones.length
+
+            .empty-feed
+
+                i.bi.bi-images.empty-feed-icon
+
+                p.empty-feed-text Los usuarios que seguís aún no publicaron nada.
+
+        else
+
+            include ../partials/publicGrid
+
+    else
+
+        if !publicaciones.length
+
+            .empty-feed
+
+                i.bi.bi-image.empty-feed-icon
+
+                p.empty-feed-text Aún no hay publicaciones. ¡Sé el primero!
+
+        else
+
+            include ../partials/publicGrid

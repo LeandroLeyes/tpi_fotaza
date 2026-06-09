@@ -201,9 +201,6 @@ body{
     font-size: 14px;
 }
 
-.follow {
-    text-decoration: none;
-}
 
 /* Footer */
 .footer{
@@ -419,7 +416,37 @@ body{
     object-fit: contain;
 }
 
-.carousel-control-prev-icon{
+/* Flechas del carrusel en verde del logo (#636B2F)
+   Bootstrap las renderiza como SVG incrustado en background-image,
+   la única forma de cambiarles el color es con filter CSS */
+.carousel-control-prev,
+.carousel-control-next {
+    width: 10%;
+    opacity: 1;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    background-color: #636B2F;
+    border-radius: 50%;
+    padding: 18px;
+    background-size: 55%;
+    filter: none;
+}
+
+.carousel-control-prev:hover .carousel-control-prev-icon,
+.carousel-control-next:hover .carousel-control-next-icon {
+    background-color: #7A8440;
+}
+
+/* Estrellas de valoración */
+.star-btn {
+    color: #ccc;
+    transition: color 0.15s ease;
+}
+
+.star-btn:hover,
+.star-btn.star-active {
     color: #636B2F;
 }
 
@@ -630,4 +657,71 @@ button.btn.btn-light {
         column-count: 1;
     }
 
+}
+
+/* Feed toggle estilo TikTok */
+.feed-header {
+    display: flex;
+    justify-content: center;
+    padding: 10px 0 0 0;
+    margin-bottom: 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: #F8F8F4;
+    border-bottom: 1px solid #eaeaea;
+}
+
+.feed-toggle {
+    display: flex;
+    gap: 8px;
+    position: relative;
+    padding-bottom: 12px;
+}
+
+.feed-tab {
+    font-size: 16px;
+    font-weight: 600;
+    color: #999;
+    text-decoration: none;
+    padding: 4px 20px;
+    transition: color 0.2s ease;
+    position: relative;
+}
+
+.feed-tab.active {
+    color: #333;
+}
+
+.feed-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -13px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 3px;
+    background-color: #636B2F;
+    border-radius: 2px;
+}
+
+/* Estado vacío del feed */
+.empty-feed {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    color: #aaa;
+}
+
+.empty-feed-icon {
+    font-size: 56px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.empty-feed-text {
+    font-size: 16px;
+    margin-bottom: 20px;
 }
