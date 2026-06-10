@@ -20,6 +20,7 @@ Fotaza 2 es una plataforma web de fotografía inspirada en Instagram. Permite a 
 - **Autenticación:** express-session + bcrypt
 - **Procesamiento de imágenes:** Sharp + Multer
 - **Estilos:** Bootstrap 5 + CSS personalizado
+- **Validaciones:** Zod
 
 ---
 
@@ -38,8 +39,8 @@ Seguí estos pasos en orden:
 ### 1. Clonar el repositorio
 
 ```bash
-git clone https://github.com/LeandroLeyes/Tpi_Fotaza.git
-cd Tpi_Fotaza
+git clone https://github.com/LeandroLeyes/tpi_fotaza.git
+cd tpi_fotaza
 ```
 
 ### 2. Instalar dependencias
@@ -165,8 +166,8 @@ Tpi_Fotaza/
 ├── app.js
 ├── package.json
 ├── .env.example
-├── scripts/
-│   └── db.init.js
+├── helpers/
+│   └── blobAbase64.js
 ├── controllers/
 │   ├── auth.controller.js
 │   ├── busqueda.controller.js
@@ -176,10 +177,12 @@ Tpi_Fotaza/
 │   ├── auth.middleware.js
 │   ├── rol.midddleware.js
 │   ├── sesion.middleware.js
-│   └── upload.middleware.js
+│   |── upload.middleware.js
+│   └── validar.middleware.js
 ├── models/
 │   ├── config.js
 │   ├── sync.js
+|   |── db.init.js
 │   └── (resto de modelos)
 ├── routes/
 │   ├── views.routes.js
@@ -187,6 +190,8 @@ Tpi_Fotaza/
 │   ├── busqueda.routes.js
 │   ├── landing.routes.js
 │   └── usuario.routes.js
+├── schemas/
+│   └── validaciones.js
 ├── views/
 │   ├── auth/
 │   ├── landing/
@@ -223,4 +228,4 @@ Originalmente el formulario permitía solo una imagen. Se migró a `upload.array
 
 ## Servidor en producción
 
-La aplicación está desplegada en: _(completar con la URL del servidor)_
+La aplicación está desplegada en: https://tpi-fotaza.onrender.com
