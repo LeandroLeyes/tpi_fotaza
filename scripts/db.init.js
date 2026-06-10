@@ -17,7 +17,7 @@ console.log("Iniciando configuración de la base de datos...\n");
 
 await connectDatabase();
 
-// USUARIOS DE PRUEBA
+// USUARIOS DE PRUEBA (uno por cada rol)
 console.log("Creando usuarios de prueba...");
 
 const [admin] = await Usuario.findOrCreate({
@@ -48,30 +48,30 @@ const [usuario1] = await Usuario.findOrCreate({
   where: { email: "juan@fotaza.com" },
   defaults: {
     name: "Juan",
-    lastName: "Pérez",
+    lastName: "Perez",
     username: "juanperez",
     password: "Usuario1234",
     rol: "usuario",
-    bio: "Fotógrafo aficionado. Me encantan los paisajes y la naturaleza.",
+    bio: "Fotografo aficionado. Me encantan los paisajes y la naturaleza.",
   },
 });
 
 const [usuario2] = await Usuario.findOrCreate({
   where: { email: "maria@fotaza.com" },
   defaults: {
-    name: "María",
-    lastName: "González",
+    name: "Maria",
+    lastName: "Gonzalez",
     username: "mariagonzalez",
     password: "Usuario1234",
     rol: "usuario",
-    bio: "Amante de la fotografía urbana y los retratos.",
+    bio: "Amante de la fotografia urbana y los retratos.",
   },
 });
 
-console.log("   ✓ Usuarios creados\n");
+console.log("Usuarios creados\n");
 
 // ETIQUETAS
-console.log("🏷️  Creando etiquetas...");
+console.log("Creando etiquetas...");
 
 const etiquetasNombres = [
   "naturaleza",
@@ -90,8 +90,9 @@ for (const nombre of etiquetasNombres) {
   etiquetas[nombre] = etiqueta;
 }
 
-console.log("   ✓ Etiquetas creadas\n");
+console.log("Etiquetas creadas\n");
 
+// IMAGEN PLACEHOLDER
 const imagenPlaceholder = Buffer.from(
   "/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8U" +
     "HRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgN" +
@@ -103,9 +104,9 @@ const imagenPlaceholder = Buffer.from(
 );
 
 // PUBLICACIONES DE EJEMPLO
-console.log("📸 Creando publicaciones de ejemplo...");
+console.log("Creando publicaciones de ejemplo...");
 
-// Publicación 1 — usuario1
+// Publicacion 1 — usuario1
 const [pub1, pub1Nueva] = await Publicacion.findOrCreate({
   where: { titulo: "Atardecer en las sierras" },
   defaults: {
@@ -129,14 +130,14 @@ if (pub1Nueva) {
   await com1.setUsuario(usuario2.id);
   await com1.setImagen(img1.id);
 
-  // Valoración de usuario2 sobre img1
+  // Valoracion de usuario2 sobre img1
   await Valoracion.create({
     puntaje: 5,
     UsuarioId: usuario2.id,
     ImagenId: img1.id,
   });
 
-  // Valoración del admin sobre img1
+  // Valoracion del admin sobre img1
   await Valoracion.create({
     puntaje: 4,
     UsuarioId: admin.id,
@@ -144,7 +145,7 @@ if (pub1Nueva) {
   });
 }
 
-// Publicación 2 — usuario1
+// Publicacion 2 — usuario1
 const [pub2, pub2Nueva] = await Publicacion.findOrCreate({
   where: { titulo: "Calles de Buenos Aires" },
   defaults: {
@@ -176,7 +177,7 @@ if (pub2Nueva) {
   });
 }
 
-// Publicación 3 — usuario2
+// Publicacion 3 — usuario2
 const [pub3, pub3Nueva] = await Publicacion.findOrCreate({
   where: { titulo: "Retrato urbano" },
   defaults: {
@@ -211,10 +212,20 @@ if (pub3Nueva) {
   });
 }
 
+if (pub4Nueva) {
+  await Imagen.create({
+    url: imagenPlaceholder,
+    copyright: false,
+    PublicacionId: pub4.id,
+  });
+  await pub4.addEtiqueta(etiquetas["arquitectura"]);
+  await pub4.addEtiqueta(etiquetas["fotografia"]);
+}
+
 console.log("Publicaciones creadas\n");
 
 // SEGUIMIENTOS DE EJEMPLO
-console.log("👥 Creando seguimientos de ejemplo...");
+console.log("Creando seguimientos de ejemplo...");
 
 await Seguimiento.findOrCreate({
   where: { idSeguidor: usuario1.id, idSeguido: usuario2.id },
@@ -227,3 +238,5 @@ await Seguimiento.findOrCreate({
 });
 
 console.log("Seguimientos creados\n");
+
+process.exit(0);
