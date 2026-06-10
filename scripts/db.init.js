@@ -13,14 +13,12 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-console.log("🚀 Iniciando configuración de la base de datos...\n");
+console.log("Iniciando configuración de la base de datos...\n");
 
 await connectDatabase();
 
-// ─────────────────────────────────────────────
-// USUARIOS DE PRUEBA (uno por cada rol)
-// ─────────────────────────────────────────────
-console.log("👤 Creando usuarios de prueba...");
+// USUARIOS DE PRUEBA
+console.log("Creando usuarios de prueba...");
 
 const [admin] = await Usuario.findOrCreate({
   where: { email: "admin@fotaza.com" },
@@ -72,14 +70,18 @@ const [usuario2] = await Usuario.findOrCreate({
 
 console.log("   ✓ Usuarios creados\n");
 
-// ─────────────────────────────────────────────
 // ETIQUETAS
-// ─────────────────────────────────────────────
 console.log("🏷️  Creando etiquetas...");
 
 const etiquetasNombres = [
-  "naturaleza", "paisaje", "ciudad", "retrato",
-  "viaje", "arquitectura", "fotografia", "arte",
+  "naturaleza",
+  "paisaje",
+  "ciudad",
+  "retrato",
+  "viaje",
+  "arquitectura",
+  "fotografia",
+  "arte",
 ];
 
 const etiquetas = {};
@@ -90,23 +92,17 @@ for (const nombre of etiquetasNombres) {
 
 console.log("   ✓ Etiquetas creadas\n");
 
-// ─────────────────────────────────────────────
-// IMAGEN PLACEHOLDER (1x1 pixel JPEG válido)
-// Se usa como imagen de ejemplo para las publicaciones seed.
-// ─────────────────────────────────────────────
 const imagenPlaceholder = Buffer.from(
   "/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8U" +
-  "HRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgN" +
-  "DRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIy" +
-  "MjL/wAARCAABAAEDASIAAhEBAxEB/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAA" +
-  "AAAAAAAAAAAAAP/EABQBAQAAAAAAAAAAAAAAAAAAAAD/xAAUEQEAAAAAAAAAAAAAAAAAAAAA" +
-  "/9oADAMBAAIRAxEAPwCwABmX/9k=",
-  "base64"
+    "HRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgN" +
+    "DRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIy" +
+    "MjL/wAARCAABAAEDASIAAhEBAxEB/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAA" +
+    "AAAAAAAAAAAAAP/EABQBAQAAAAAAAAAAAAAAAAAAAAD/xAAUEQEAAAAAAAAAAAAAAAAAAAAA" +
+    "/9oADAMBAAIRAxEAPwCwABmX/9k=",
+  "base64",
 );
 
-// ─────────────────────────────────────────────
 // PUBLICACIONES DE EJEMPLO
-// ─────────────────────────────────────────────
 console.log("📸 Creando publicaciones de ejemplo...");
 
 // Publicación 1 — usuario1
@@ -134,10 +130,18 @@ if (pub1Nueva) {
   await com1.setImagen(img1.id);
 
   // Valoración de usuario2 sobre img1
-  await Valoracion.create({ puntaje: 5, UsuarioId: usuario2.id, ImagenId: img1.id });
+  await Valoracion.create({
+    puntaje: 5,
+    UsuarioId: usuario2.id,
+    ImagenId: img1.id,
+  });
 
   // Valoración del admin sobre img1
-  await Valoracion.create({ puntaje: 4, UsuarioId: admin.id, ImagenId: img1.id });
+  await Valoracion.create({
+    puntaje: 4,
+    UsuarioId: admin.id,
+    ImagenId: img1.id,
+  });
 }
 
 // Publicación 2 — usuario1
@@ -159,11 +163,17 @@ if (pub2Nueva) {
   await pub2.addEtiqueta(etiquetas["ciudad"]);
   await pub2.addEtiqueta(etiquetas["viaje"]);
 
-  const com2 = await Comentario.create({ contenido: "Me encanta la luz de esta foto." });
+  const com2 = await Comentario.create({
+    contenido: "Me encanta la luz de esta foto.",
+  });
   await com2.setUsuario(admin.id);
   await com2.setImagen(img2.id);
 
-  await Valoracion.create({ puntaje: 4, UsuarioId: usuario2.id, ImagenId: img2.id });
+  await Valoracion.create({
+    puntaje: 4,
+    UsuarioId: usuario2.id,
+    ImagenId: img2.id,
+  });
 }
 
 // Publicación 3 — usuario2
@@ -189,35 +199,21 @@ if (pub3Nueva) {
   await com3.setUsuario(usuario1.id);
   await com3.setImagen(img3.id);
 
-  await Valoracion.create({ puntaje: 5, UsuarioId: usuario1.id, ImagenId: img3.id });
-  await Valoracion.create({ puntaje: 3, UsuarioId: admin.id, ImagenId: img3.id });
-}
-
-// Publicación 4 — admin (para mostrar que el rol admin también puede publicar)
-const [pub4, pub4Nueva] = await Publicacion.findOrCreate({
-  where: { titulo: "Arquitectura moderna" },
-  defaults: {
-    descripcion: "Líneas y formas del diseño contemporáneo.",
-    UsuarioId: admin.id,
-    comentariosActivo: false,
-  },
-});
-
-if (pub4Nueva) {
-  await Imagen.create({
-    url: imagenPlaceholder,
-    copyright: false,
-    PublicacionId: pub4.id,
+  await Valoracion.create({
+    puntaje: 5,
+    UsuarioId: usuario1.id,
+    ImagenId: img3.id,
   });
-  await pub4.addEtiqueta(etiquetas["arquitectura"]);
-  await pub4.addEtiqueta(etiquetas["fotografia"]);
+  await Valoracion.create({
+    puntaje: 3,
+    UsuarioId: admin.id,
+    ImagenId: img3.id,
+  });
 }
 
-console.log("   ✓ Publicaciones creadas\n");
+console.log("Publicaciones creadas\n");
 
-// ─────────────────────────────────────────────
 // SEGUIMIENTOS DE EJEMPLO
-// ─────────────────────────────────────────────
 console.log("👥 Creando seguimientos de ejemplo...");
 
 await Seguimiento.findOrCreate({
@@ -230,26 +226,4 @@ await Seguimiento.findOrCreate({
   where: { idSeguidor: admin.id, idSeguido: usuario1.id },
 });
 
-console.log("   ✓ Seguimientos creados\n");
-
-// ─────────────────────────────────────────────
-// RESUMEN
-// ─────────────────────────────────────────────
-console.log("═══════════════════════════════════════════");
-console.log("✅ Base de datos inicializada correctamente");
-console.log("═══════════════════════════════════════════\n");
-console.log("Usuarios de prueba disponibles:\n");
-console.log("  Rol: admin");
-console.log("  Email:    admin@fotaza.com");
-console.log("  Password: Admin1234\n");
-console.log("  Rol: validador");
-console.log("  Email:    validador@fotaza.com");
-console.log("  Password: Validador1234\n");
-console.log("  Rol: usuario");
-console.log("  Email:    juan@fotaza.com");
-console.log("  Password: Usuario1234\n");
-console.log("  Rol: usuario");
-console.log("  Email:    maria@fotaza.com");
-console.log("  Password: Usuario1234\n");
-
-process.exit(0);
+console.log("Seguimientos creados\n");

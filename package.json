@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "node --watch app.js",
-    "db:init": "node models/db.init.js",
+    "db:init": "node scripts/db.init.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
