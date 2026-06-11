@@ -17,11 +17,13 @@ header.topbar
           data-bs-toggle="dropdown",
           aria-expanded="false"
         )
-
-          img.user-avatar(
-            src=usuario.avatar,
-            alt="avatar"
-          )
+          if usuario.avatar
+            img.user-avatar(
+              src=usuario.avatar,
+              alt="avatar"
+            )
+          else
+            .avatar-placeholder.rounded-circle.shadow.avatar-topbar= usuario.name[0].toUpperCase()+usuario.lastName[0].toUpperCase()
 
         ul.dropdown-menu.dropdown-menu-end
 

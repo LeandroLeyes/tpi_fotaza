@@ -18,13 +18,13 @@ block content
 
                         else
 
-                            img.rounded-circle.shadow(src="/images/patroclo.jpg" style="object-fit: cover;")
+                            .avatar-placeholder.rounded-circle.shadow= perfilUsuario.name[0].toUpperCase()+perfilUsuario.lastName[0].toUpperCase()
 
                     .profile-info
 
                         h2.mb-2= perfilUsuario.username
 
-                        p.text-muted.mb-3= perfilUsuario.email
+                        p.text-muted.mb-3= perfilUsuario.name+" "+perfilUsuario.lastName
 
                         .profile-stats
 
