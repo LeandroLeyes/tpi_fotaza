@@ -416,9 +416,6 @@ body{
     object-fit: contain;
 }
 
-/* Flechas del carrusel en verde del logo (#636B2F)
-   Bootstrap las renderiza como SVG incrustado en background-image,
-   la única forma de cambiarles el color es con filter CSS */
 .carousel-control-prev,
 .carousel-control-next {
     width: 10%;
@@ -542,6 +539,106 @@ button.btn.btn-light {
   box-shadow: 0 0 10px rgba(175, 76, 76, 0.5);
 }
 
+.feed-header {
+    display: flex;
+    justify-content: center;
+    padding: 10px 0 0 0;
+    margin-bottom: 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: #F8F8F4;
+    border-bottom: 1px solid #eaeaea;
+}
+
+.feed-toggle {
+    display: flex;
+    gap: 8px;
+    position: relative;
+    padding-bottom: 12px;
+}
+
+.feed-tab {
+    font-size: 16px;
+    font-weight: 600;
+    color: #999;
+    text-decoration: none;
+    padding: 4px 20px;
+    transition: color 0.2s ease;
+    position: relative;
+}
+
+.feed-tab.active {
+    color: #333;
+}
+
+.feed-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -13px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 3px;
+    background-color: #636B2F;
+    border-radius: 2px;
+}
+
+.empty-feed {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    color: #aaa;
+}
+
+.empty-feed-icon {
+    font-size: 56px;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.empty-feed-text {
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+
+/* Avatar */
+.avatar-placeholder {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 55px;
+    height: 55px;
+    background-color: #636B2F;
+    color: #fff;
+    font-weight: 600;
+    font-size: 18px;
+    letter-spacing: 1px;
+    flex-shrink: 0;
+}
+
+.avatar-placeholder.avatar-sm {
+    width: 35px;
+    height: 35px;
+    font-size: 12px;
+}
+
+.avatar-placeholder.avatar-topbar {
+    width: 42px;
+    height: 42px;
+    font-size: 15px;
+}
+
+.avatar-placeholder.avatar-lg {
+    width: 150px;
+    height: 150px;
+    font-size: 52px;
+}
+
+
 /* Responsive */
 
 @media (max-width: 1200px){
@@ -659,69 +756,3 @@ button.btn.btn-light {
 
 }
 
-/* Feed toggle estilo TikTok */
-.feed-header {
-    display: flex;
-    justify-content: center;
-    padding: 10px 0 0 0;
-    margin-bottom: 24px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background-color: #F8F8F4;
-    border-bottom: 1px solid #eaeaea;
-}
-
-.feed-toggle {
-    display: flex;
-    gap: 8px;
-    position: relative;
-    padding-bottom: 12px;
-}
-
-.feed-tab {
-    font-size: 16px;
-    font-weight: 600;
-    color: #999;
-    text-decoration: none;
-    padding: 4px 20px;
-    transition: color 0.2s ease;
-    position: relative;
-}
-
-.feed-tab.active {
-    color: #333;
-}
-
-.feed-tab.active::after {
-    content: '';
-    position: absolute;
-    bottom: -13px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60%;
-    height: 3px;
-    background-color: #636B2F;
-    border-radius: 2px;
-}
-
-/* Estado vacío del feed */
-.empty-feed {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 80px 20px;
-    color: #aaa;
-}
-
-.empty-feed-icon {
-    font-size: 56px;
-    margin-bottom: 16px;
-    opacity: 0.5;
-}
-
-.empty-feed-text {
-    font-size: 16px;
-    margin-bottom: 20px;
-}

@@ -86,6 +86,25 @@ block content
                                                     button.dropdown-item(type="submit")
                                                         | Abrir comentarios
 
+                                        li
+
+                                            a.dropdown-item(
+                                                href=`/usuario/publicaciones/${publicacion.id}/editar`
+                                            )
+                                                | Editar publicación
+
+                                        li
+                                            hr.dropdown-divider
+
+                                        li
+
+                                            button.dropdown-item.text-danger(
+                                                type="button"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#modalEliminarPublicacion"
+                                            )
+                                                | Eliminar publicación
+
                                     else
 
                                         li
@@ -115,13 +134,15 @@ block content
                         )
 
                             .d-flex.align-items-center.gap-3
-
-                                img.rounded-circle.shadow-sm(
-                                    src=publicacion.Usuario.avatar
-                                    width="55"
-                                    height="55"
-                                    style="object-fit:cover"
-                                )
+                                if publicacion.Usuario.avatar
+                                    img.rounded-circle.shadow-sm(
+                                        src=publicacion.Usuario.avatar
+                                        width="55"
+                                        height="55"
+                                        style="object-fit:cover"
+                                    )
+                                else    
+                                    .avatar-placeholder.rounded-circle.shadow(style="width:55; height:55;")= publicacion.Usuario.name[0].toUpperCase()+publicacion.Usuario.lastName[0].toUpperCase()
 
                                 div
 
@@ -168,30 +189,19 @@ block content
 
                                 h5.mb-3 Estadísticas
 
-                                .row.text-center.mb-4
+                                .d-flex.gap-3.mb-4
 
-                                    .col-6
+                                    - const total = imagen.Valoracions ? imagen.Valoracions.length : 0
+                                    - const promedio = total > 0 ? (imagen.Valoracions.reduce((s, v) => s + v.puntaje, 0) / total) : 0
 
-                                        .card.bg-light.border-0
+                                    span.small
+                                        span.text-success.fw-semibold= promedio.toFixed(1)
+                                        span.text-muted  ★ 
 
-                                            .card-body.py-3
-
-                                                - const total = imagen.Valoracions ? imagen.Valoracions.length : 0
-                                                - const promedio = total > 0 ? (imagen.Valoracions.reduce((s, v) => s + v.puntaje, 0) / total) : 0
-
-                                                h4.mb-0.text-success= promedio.toFixed(1)
-
-                                                small.text-muted Promedio
-
-                                    .col-6
-
-                                        .card.bg-light.border-0
-
-                                            .card-body.py-3
-
-                                                h4.mb-0.text-success= total
-
-                                                small.text-muted Valoraciones
+                                    span.small
+                                        span.text-success.fw-semibold= total
+                                        span.text-muted 
+                                            i.bi.bi-people-fill.me-1
 
                                 hr
 
@@ -245,13 +255,15 @@ block content
                                                     .card-body
 
                                                         .d-flex.align-items-center.gap-2.mb-2
-
-                                                            img.rounded-circle(
-                                                                src=comentario.Usuario.avatar
-                                                                width="35"
-                                                                height="35"
-                                                                style="object-fit:cover"
-                                                            )
+                                                            if comentario.Usuario.avatar
+                                                                img.rounded-circle(
+                                                                    src=comentario.Usuario.avatar
+                                                                    width="35"
+                                                                    height="35"
+                                                                    style="object-fit:cover"
+                                                                )
+                                                            else
+                                                                .avatar-placeholder.rounded-circle.shadow.avatar-sm= comentario.Usuario.name[0].toUpperCase() + comentario.Usuario.lastName[0].toUpperCase()
 
                                                             strong= comentario.Usuario.username
 
@@ -260,6 +272,50 @@ block content
                                 else
 
                                     p.text-muted.small No hay comentarios en esta imagen.
+
+    if esPropietario
+
+        #modalEliminarPublicacion.modal.fade(
+            tabindex="-1"
+            aria-labelledby="modalEliminarLabel"
+            aria-hidden="true"
+        )
+
+            .modal-dialog.modal-dialog-centered
+
+                .modal-content
+
+                    .modal-header.border-0
+
+                        h5.modal-title#modalEliminarLabel Eliminar publicación
+
+                        button.btn-close(
+                            type="button"
+                            data-bs-dismiss="modal"
+                            aria-label="Cerrar"
+                        )
+
+                    .modal-body
+
+                        p ¿Estas seguro que queres eliminar 
+                            strong= publicacion.titulo
+                            | ?
+
+                        p.text-muted.small Esta accion no se puede deshacer. Se eliminaran todas las imagenes, comentarios y valoraciones asociadas.
+
+                    .modal-footer.border-0
+
+                        button.btn.btn-secondary(
+                            type="button"
+                            data-bs-dismiss="modal"
+                        ) Cancelar
+
+                        form(
+                            action=`/usuario/publicaciones/${publicacion.id}/eliminar`
+                            method="POST"
+                        )
+
+                            button.btn.btn-danger(type="submit") Si, eliminar
 
     script.
 

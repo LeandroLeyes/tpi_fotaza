@@ -21,8 +21,9 @@ function mapearPublicaciones(pubs) {
       });
     });
 
-    const promedioValoraciones =
-      totalValoraciones > 0 ? sumaValoraciones / totalValoraciones : 0;
+    const promedioValoraciones = (
+      totalValoraciones > 0 ? sumaValoraciones / totalValoraciones : 0
+    ).toFixed(1);
 
     return {
       ...pub.toJSON(),
@@ -41,7 +42,6 @@ export async function mostrarHome(req, res) {
     let sinSeguidos = false;
 
     if (feed === "siguiendo") {
-      // Feed de usuarios seguidos
       const seguidos = await Seguimiento.findAll({
         where: { idSeguidor: usuarioId },
         attributes: ["idSeguido"],
@@ -63,7 +63,6 @@ export async function mostrarHome(req, res) {
         publicaciones = mapearPublicaciones(pubs);
       }
     } else {
-      // Feed general — para ti
       const pubs = await Publicacion.findAll({
         include: [{ model: Imagen, as: "imagenes", include: [Valoracion] }],
         order: [["createdAt", "DESC"]],
@@ -260,7 +259,6 @@ export async function actualizarPerfil(req, res) {
     const { name, lastName, username, email, bio } = resultado.data;
     const { eliminarAvatar } = req.body;
 
-    // Verificar unicidad de username y email
     const [usernameExistente, emailExistente] = await Promise.all([
       Usuario.findOne({ where: { username } }),
       Usuario.findOne({ where: { email } }),

@@ -7,6 +7,9 @@ import {
   crearComentario,
   valorarImagen,
   cambiarEstadoComentarios,
+  eliminarPublicacion,
+  mostrarFormEditar,
+  editarPublicacion,
 } from "../controllers/publicacion.controller.js";
 import {
   mostrarHome,
@@ -57,6 +60,9 @@ usuario.post(
 );
 usuario.get("/publicaciones/:id", renderPublicacion);
 usuario.post("/publicaciones/:id/comentarios", cambiarEstadoComentarios);
+usuario.post("/publicaciones/:id/eliminar", eliminarPublicacion);
+usuario.get("/publicaciones/:id/editar", mostrarFormEditar);
+usuario.post("/publicaciones/:id/editar", upload.array("imagenes", 10), editarPublicacion);
 
 // Comentarios
 usuario.post(

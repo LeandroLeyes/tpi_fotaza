@@ -1,0 +1,99 @@
+extends ../layout
+
+block content
+
+  .container.mt-4
+
+    h2.mb-4 Editar publicación
+
+    form(action=`/usuario/publicaciones/${publicacion.id}/editar` method="post" enctype="multipart/form-data")
+
+      if errores && errores.general
+        include ../../partials/alert
+        +alert({ status: 'error', text: errores.general })
+
+      .mb-3
+        label.form-label Título *
+        input.form-control(
+          type="text"
+          name="titulo"
+          value= formValues ? formValues.titulo : publicacion.titulo
+          class= errores && errores.titulo ? 'is-invalid' : ''
+        )
+        if errores && errores.titulo
+          .invalid-feedback #{errores.titulo}
+
+      .mb-3
+        label.form-label Descripción
+        textarea.form-control(
+          name="descripcion"
+          rows="3"
+          class= errores && errores.descripcion ? 'is-invalid' : ''
+        )= formValues ? formValues.descripcion : publicacion.descripcion
+        if errores && errores.descripcion
+          .invalid-feedback #{errores.descripcion}
+
+      .mb-3
+        label.form-label Etiquetas
+        input.form-control(
+          type="text"
+          name="etiquetas"
+          placeholder="foto, viaje, naturaleza"
+          value= formValues ? formValues.etiquetas : publicacion.Etiqueta.map(e => e.nombre).join(', ')
+          class= errores && errores.etiquetas ? 'is-invalid' : ''
+        )
+        .form-text Separadas por coma. Máximo 10 etiquetas.
+        if errores && errores.etiquetas
+          .invalid-feedback #{errores.etiquetas}
+
+      if publicacion.imagenes && publicacion.imagenes.length
+
+        .mb-3
+
+          label.form-label Imágenes actuales
+
+          .row.g-2
+
+            each imagen in publicacion.imagenes
+
+              .col-4
+
+                .position-relative
+
+                  img.img-fluid.rounded(
+                    src=imagen.imagenBase64
+                    alt="Imagen de la publicación"
+                    style="aspect-ratio: 1/1; object-fit: cover;"
+                  )
+
+                  .form-check.position-absolute.top-0.end-0.m-1
+
+                    input.form-check-input(
+                      type="checkbox"
+                      name="eliminarImagenes"
+                      value=`${imagen.id}`
+                      id=`eliminar-img-${imagen.id}`
+                    )
+
+                    label.form-check-label.bg-white.rounded.px-1.small(
+                      for=`eliminar-img-${imagen.id}`
+                    ) Eliminar
+
+      .mb-4
+        label.form-label Agregar nuevas imágenes
+        input.form-control(
+          type="file"
+          name="imagenes"
+          accept="image/*"
+          multiple
+          class= errores && errores.imagenes ? 'is-invalid' : ''
+        )
+        .form-text Solo se permiten JPG, PNG, WEBP o GIF. Máximo 10MB por imagen.
+        if errores && errores.imagenes
+          .invalid-feedback #{errores.imagenes}
+
+      .d-flex.gap-2
+
+        button.btn.btn-success(type="submit") Guardar cambios
+
+        a.btn.btn-outline-secondary(href=`/usuario/publicaciones/${publicacion.id}`) Cancelar

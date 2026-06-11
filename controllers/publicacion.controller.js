@@ -251,3 +251,162 @@ export async function cambiarEstadoComentarios(req, res) {
 
   res.redirect(`/usuario/publicaciones/${publicacion.id}`);
 }
+
+export async function eliminarPublicacion(req, res) {
+  try {
+    const publicacion = await Publicacion.findByPk(req.params.id);
+
+    if (!publicacion) {
+      return res.redirect("/usuario/home");
+    }
+
+    if (publicacion.UsuarioId !== req.session.usuario.id) {
+      return res.redirect(`/usuario/publicaciones/${publicacion.id}`);
+    }
+
+    await publicacion.destroy();
+
+    return res.redirect("/usuario/home");
+  } catch (error) {
+    console.error("Error al eliminar publicación:", error);
+    return res.redirect("/usuario/home");
+  }
+}
+
+export async function mostrarFormEditar(req, res) {
+  try {
+    const publicacion = await Publicacion.findByPk(req.params.id, {
+      include: [Etiqueta, { model: Imagen, as: "imagenes" }],
+    });
+
+    if (!publicacion) return res.redirect("/usuario/home");
+
+    if (publicacion.UsuarioId !== req.session.usuario.id) {
+      return res.redirect(`/usuario/publicaciones/${publicacion.id}`);
+    }
+
+    const pub = publicacion.toJSON();
+    pub.imagenes = pub.imagenes.map((img) => ({
+      ...img,
+      imagenBase64: blobABase64(img.url),
+    }));
+
+    res.render("usuario/publicaciones/editarPublicacion", {
+      title: "Editar publicación",
+      publicacion: pub,
+    });
+  } catch (error) {
+    console.error("Error al cargar edición:", error);
+    res.redirect("/usuario/home");
+  }
+}
+
+export async function editarPublicacion(req, res) {
+  let publicacion = null;
+
+  try {
+    publicacion = await Publicacion.findByPk(req.params.id, {
+      include: [Etiqueta, { model: Imagen, as: "imagenes" }],
+    });
+
+    if (!publicacion) return res.redirect("/usuario/home");
+
+    if (publicacion.UsuarioId !== req.session.usuario.id) {
+      return res.redirect(`/usuario/publicaciones/${publicacion.id}`);
+    }
+
+    // Helper para volver al form con errores
+    const volverAlForm = async (errores) => {
+      const pub = publicacion.toJSON();
+      pub.imagenes = pub.imagenes.map((img) => ({
+        ...img,
+        imagenBase64: blobABase64(img.url),
+      }));
+      return res.status(400).render("usuario/publicaciones/editarPublicacion", {
+        title: "Editar publicación",
+        publicacion: pub,
+        errores,
+        formValues: req.body,
+      });
+    };
+
+    const { editarPublicacionSchema } =
+      await import("../schemas/validaciones.js");
+    const { formatearErrores } = await import("../schemas/validaciones.js");
+    const resultado = editarPublicacionSchema.safeParse(req.body);
+
+    if (!resultado.success) {
+      return volverAlForm(formatearErrores(resultado.error));
+    }
+
+    const { titulo, descripcion, etiquetas } = resultado.data;
+
+    publicacion.titulo = titulo;
+    publicacion.descripcion = descripcion;
+    await publicacion.save();
+
+    const eliminarIds = req.body.eliminarImagenes
+      ? [].concat(req.body.eliminarImagenes)
+      : [];
+
+    if (eliminarIds.length > 0) {
+      const totalImagenes = publicacion.imagenes.length;
+      const nuevasImagenes = req.files?.length || 0;
+
+      if (eliminarIds.length >= totalImagenes && nuevasImagenes === 0) {
+        return volverAlForm({
+          imagenes: "La publicación debe tener al menos una imagen",
+        });
+      }
+
+      for (const idImg of eliminarIds) {
+        await Imagen.destroy({
+          where: { id: idImg, PublicacionId: publicacion.id },
+        });
+      }
+    }
+
+    // Agregar nuevas imágenes si se subieron
+    if (req.files && req.files.length > 0) {
+      for (const archivo of req.files) {
+        const tiposPermitidos = [
+          "image/jpeg",
+          "image/png",
+          "image/webp",
+          "image/gif",
+        ];
+        if (!tiposPermitidos.includes(archivo.mimetype)) {
+          return volverAlForm({
+            imagenes: "Solo se permiten imágenes JPG, PNG, WEBP o GIF",
+          });
+        }
+
+        const imagenProcesada = await sharp(archivo.buffer).jpeg().toBuffer();
+        await Imagen.create({
+          url: imagenProcesada,
+          copyright: false,
+          PublicacionId: publicacion.id,
+        });
+      }
+    }
+
+    await publicacion.setEtiqueta([]);
+
+    if (etiquetas) {
+      const nombresEtiquetas = etiquetas
+        .split(",")
+        .map((e) => e.trim())
+        .filter((e) => e.length > 0);
+
+      for (const nombre of nombresEtiquetas) {
+        const [etiqueta] = await Etiqueta.findOrCreate({ where: { nombre } });
+        await publicacion.addEtiqueta(etiqueta);
+      }
+    }
+
+    return res.redirect(`/usuario/publicaciones/${publicacion.id}`);
+  } catch (error) {
+    console.error("Error al editar publicación:", error);
+    return res.redirect(`/usuario/publicaciones/${req.params.id}`);
+  }
+}

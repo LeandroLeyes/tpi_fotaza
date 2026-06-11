@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+// REGISTRO DE USUARIO
 export const registroSchema = z
   .object({
     username: z
@@ -42,6 +43,7 @@ export const registroSchema = z
     path: ["confirmPassword"],
   });
 
+// LOGIN
 export const loginSchema = z.object({
   email: z
     .string()
@@ -51,6 +53,7 @@ export const loginSchema = z.object({
   password: z.string().min(1, "La contraseña es obligatoria"),
 });
 
+// CREAR PUBLICACIÓN
 export const publicacionSchema = z.object({
   titulo: z
     .string()
@@ -88,6 +91,42 @@ export const publicacionSchema = z.object({
   copyright: z.string().optional(),
 });
 
+// EDITAR PUBLICACIÓN
+export const editarPublicacionSchema = z.object({
+  titulo: z
+    .string()
+    .min(3, "El título debe tener al menos 3 caracteres")
+    .max(100, "El título no puede superar los 100 caracteres"),
+
+  descripcion: z
+    .string()
+    .max(500, "La descripción no puede superar los 500 caracteres")
+    .optional()
+    .or(z.literal("")),
+
+  etiquetas: z
+    .string()
+    .max(200, "Las etiquetas no pueden superar los 200 caracteres")
+    .optional()
+    .or(z.literal(""))
+    .refine((val) => {
+      if (!val) return true;
+      const tags = val
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean);
+      return tags.length <= 10;
+    }, "No podés agregar más de 10 etiquetas")
+    .refine((val) => {
+      if (!val) return true;
+      const tags = val
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean);
+      return tags.every((t) => t.length <= 30);
+    }, "Cada etiqueta puede tener hasta 30 caracteres"),
+});
+
 export const editarPerfilSchema = z.object({
   username: z
     .string()
@@ -120,12 +159,17 @@ export const editarPerfilSchema = z.object({
     .or(z.literal("")),
 });
 
+// COMENTARIO
 export const comentarioSchema = z.object({
   contenido: z
     .string()
-    .trim()
-    .min(1, "El comentario no puede estar vacío")
-    .max(300, "El comentario no puede superar los 300 caracteres"),
+    .transform((val) => val.trim())
+    .pipe(
+      z
+        .string()
+        .min(1, "El comentario no puede estar vacío")
+        .max(300, "El comentario no puede superar los 300 caracteres"),
+    ),
 });
 
 export function formatearErrores(zodError) {

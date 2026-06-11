@@ -76,6 +76,7 @@ export async function inicioSesion(req, res) {
       id: usuario.id,
       username: usuario.username,
       name: usuario.name,
+      lastName: usuario.lastName,
       rol: usuario.rol,
       avatar: avatarBase64,
     };
