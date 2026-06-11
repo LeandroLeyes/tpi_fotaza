@@ -40,7 +40,7 @@ block content
                                 h4= cantidadSeguidos
                                 span Siguiendo
 
-                        if esMiPerfil 
+                        if esMiPerfil || perfilUsuario.id === usuario.id
 
                             a.btn.btn-outline-success(
                                 href="/usuario/perfil/editar"
