@@ -110,8 +110,9 @@ block content
                                         li
 
                                             a.dropdown-item(
-                                                href=`/usuario/publicaciones/${publicacion.id}/denunciar`
+                                                href=`/denuncia/publicacion/${publicacion.id}`
                                             )
+                                                i.bi.bi-flag.me-2.text-danger
                                                 | Denunciar publicación
 
                         p.text-muted.mb-3= publicacion.descripcion
@@ -171,7 +172,7 @@ block content
 
                                         input(
                                             type="hidden"
-                                            name="publicacionId"
+                                            name="idPublicacion"
                                             value=publicacion.id
                                         )
 
@@ -182,7 +183,7 @@ block content
                                                     type="submit"
                                                     name="puntaje"
                                                     value=`${i}`
-                                                    class=imagen.Valoracions && imagen.Valoracions.find(v => v.UsuarioId === miUsuarioId && v.puntaje === i) ? 'star-active' : ''
+                                                    class=imagen.Valoracions && imagen.Valoracions.find(v => v.idUsuario === miUsuarioId && v.puntaje === i) ? 'star-active' : ''
                                                 ) ★
 
                                     hr
@@ -217,7 +218,7 @@ block content
 
                                         input(
                                             type="hidden"
-                                            name="publicacionId"
+                                            name="idPublicacion"
                                             value=publicacion.id
                                         )
 
@@ -254,18 +255,42 @@ block content
 
                                                     .card-body
 
-                                                        .d-flex.align-items-center.gap-2.mb-2
-                                                            if comentario.Usuario.avatar
-                                                                img.rounded-circle(
-                                                                    src=comentario.Usuario.avatar
-                                                                    width="35"
-                                                                    height="35"
-                                                                    style="object-fit:cover"
-                                                                )
-                                                            else
-                                                                .avatar-placeholder.rounded-circle.shadow.avatar-sm= comentario.Usuario.name[0].toUpperCase() + comentario.Usuario.lastName[0].toUpperCase()
+                                                        .d-flex.align-items-center.justify-content-between.mb-2
 
-                                                            strong= comentario.Usuario.username
+                                                            .d-flex.align-items-center.gap-2
+                                                                if comentario.Usuario.avatar
+                                                                    img.rounded-circle(
+                                                                        src=comentario.Usuario.avatar
+                                                                        width="35"
+                                                                        height="35"
+                                                                        style="object-fit:cover"
+                                                                    )
+                                                                else
+                                                                    .avatar-placeholder.rounded-circle.shadow.avatar-sm= comentario.Usuario.name[0].toUpperCase() + comentario.Usuario.lastName[0].toUpperCase()
+
+                                                                strong= comentario.Usuario.username
+
+                                                            .d-flex.gap-1
+
+                                                                if comentario.idUsuario === miUsuarioId
+
+                                                                    form(
+                                                                        action=`/usuario/comentarios/${comentario.id}/eliminar`
+                                                                        method="POST"
+                                                                    )
+                                                                        button.btn.btn-link.text-danger.p-0(
+                                                                            type="submit"
+                                                                            title="Eliminar comentario"
+                                                                        )
+                                                                            i.bi.bi-trash3.small
+
+                                                                else
+
+                                                                    a.btn.btn-link.text-muted.p-0(
+                                                                        href=`/denuncia/comentario/${comentario.id}`
+                                                                        title="Denunciar comentario"
+                                                                    )
+                                                                        i.bi.bi-flag.small
 
                                                         p.mb-0= comentario.contenido
 

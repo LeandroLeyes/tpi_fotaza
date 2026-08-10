@@ -4,6 +4,8 @@ import authRoutes from "./auth.routes.js";
 import landingRoutes from "./landing.routes.js";
 import usuarioRoutes from "./usuario.routes.js";
 import busquedaRoutes from "./busqueda.routes.js";
+import denunciaRoutes from "./denuncia.routes.js";
+import validadorRoutes from "./validador.routes.js";
 
 const router = Router();
 
@@ -14,5 +16,9 @@ router.use("/auth", authRoutes);
 router.use("/usuario", usuarioRoutes);
 
 router.use("/buscar", busquedaRoutes);
+
+router.use("/denuncia", denunciaRoutes);
+
+router.use("/validador", validadorRoutes);
 
 export default router;

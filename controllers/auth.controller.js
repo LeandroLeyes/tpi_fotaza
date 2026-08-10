@@ -1,4 +1,5 @@
 import { Usuario } from "../models/usuario.js";
+import { Rol } from "../models/rol.js";
 
 export async function loginForm(req, res) {
   res.render("auth/login");
@@ -49,7 +50,10 @@ export async function inicioSesion(req, res) {
   const { email, password } = req.datosValidados;
 
   try {
-    const usuario = await Usuario.findOne({ where: { email } });
+    const usuario = await Usuario.findOne({
+      where: { email },
+      include: [{ model: Rol }],
+    });
 
     if (!usuario) {
       return res.status(400).render("auth/login", {
@@ -67,20 +71,32 @@ export async function inicioSesion(req, res) {
       });
     }
 
+    // Solo bloquear si activo es explícitamente false (no null ni undefined)
+    if (usuario.activo === false) {
+      return res.status(400).render("auth/login", {
+        errores: { general: "Tu cuenta ha sido suspendida. Contactá al administrador." },
+        formValues: req.body,
+      });
+    }
+
     let avatarBase64 = null;
     if (usuario.avatar) {
       avatarBase64 = `data:image/jpeg;base64,${Buffer.from(usuario.avatar).toString("base64")}`;
     }
+
+    const rol = usuario.Rols?.[0]?.nombre || "usuario";
 
     req.session.usuario = {
       id: usuario.id,
       username: usuario.username,
       name: usuario.name,
       lastName: usuario.lastName,
-      rol: usuario.rol,
+      rol,
       avatar: avatarBase64,
     };
 
+    if (rol === "validador") return res.redirect("/validador/home");
+    if (rol === "admin") return res.redirect("/admin/home");
     return res.redirect("/usuario/home");
   } catch (error) {
     console.error("[!] Error en login:", error);

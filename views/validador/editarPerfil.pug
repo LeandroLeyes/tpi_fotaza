@@ -1,0 +1,105 @@
+extends layout
+
+block content
+
+    .container.mt-4
+
+        .row.justify-content-center
+
+            .col-lg-6
+
+                .card.border-0.shadow-sm
+
+                    .card-header.bg-white.border-0.pt-4
+
+                        h4.mb-0 Editar perfil
+
+                    .card-body
+
+                        form(
+                            action="/validador/perfil/editar"
+                            method="POST"
+                            enctype="multipart/form-data"
+                        )
+
+                            .text-center.mb-4
+
+                                if perfilUsuario.avatar
+
+                                    img.rounded-circle.shadow(
+                                        src=perfilUsuario.avatar
+                                        width="100"
+                                        height="100"
+                                        style="object-fit:cover"
+                                    )
+
+                                else
+
+                                    .avatar-placeholder.rounded-circle.shadow.mx-auto= perfilUsuario.name[0].toUpperCase() + perfilUsuario.lastName[0].toUpperCase()
+
+                            .mb-3
+                                label.form-label Avatar
+                                input.form-control(type="file" name="avatar" accept="image/*")
+                                .form-check.mt-2
+                                    input.form-check-input(type="checkbox" name="eliminarAvatar" value="true" id="eliminarAvatar")
+                                    label.form-check-label(for="eliminarAvatar") Eliminar avatar actual
+
+                            .row
+
+                                .col-md-6.mb-3
+                                    label.form-label Nombre
+                                    input.form-control(
+                                        type="text"
+                                        name="name"
+                                        value= formValues ? formValues.name : perfilUsuario.name
+                                        class= errores && errores.name ? 'is-invalid' : ''
+                                    )
+                                    if errores && errores.name
+                                        .invalid-feedback #{errores.name}
+
+                                .col-md-6.mb-3
+                                    label.form-label Apellido
+                                    input.form-control(
+                                        type="text"
+                                        name="lastName"
+                                        value= formValues ? formValues.lastName : perfilUsuario.lastName
+                                        class= errores && errores.lastName ? 'is-invalid' : ''
+                                    )
+                                    if errores && errores.lastName
+                                        .invalid-feedback #{errores.lastName}
+
+                            .mb-3
+                                label.form-label Nombre de usuario
+                                input.form-control(
+                                    type="text"
+                                    name="username"
+                                    value= formValues ? formValues.username : perfilUsuario.username
+                                    class= errores && errores.username ? 'is-invalid' : ''
+                                )
+                                if errores && errores.username
+                                    .invalid-feedback #{errores.username}
+
+                            .mb-3
+                                label.form-label Email
+                                input.form-control(
+                                    type="email"
+                                    name="email"
+                                    value= formValues ? formValues.email : perfilUsuario.email
+                                    class= errores && errores.email ? 'is-invalid' : ''
+                                )
+                                if errores && errores.email
+                                    .invalid-feedback #{errores.email}
+
+                            .mb-4
+                                label.form-label Bio
+                                textarea.form-control(
+                                    name="bio"
+                                    rows="3"
+                                    class= errores && errores.bio ? 'is-invalid' : ''
+                                )= formValues ? formValues.bio : perfilUsuario.bio
+                                if errores && errores.bio
+                                    .invalid-feedback #{errores.bio}
+
+                            .d-flex.gap-2
+                                button.btn.btn-success(type="submit") Guardar cambios
+                                a.btn.btn-outline-secondary(href="/validador/perfil") Cancelar

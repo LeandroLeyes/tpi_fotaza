@@ -13,106 +13,115 @@ import { Etiqueta } from "./etiqueta.js";
 import { Coleccion } from "./coleccion.js";
 import { Notificacion } from "./notificacion.js";
 import { Seguimiento } from "./seguimiento.js";
+import { Rol } from "./rol.js";
+import { UsuariosRoles } from "./usuariosRoles.js";
 
 // Usuario - Publicacion
-Usuario.hasMany(Publicacion);
-
-Publicacion.belongsTo(Usuario);
+Usuario.hasMany(Publicacion, { foreignKey: "idUsuario" });
+Publicacion.belongsTo(Usuario, { foreignKey: "idUsuario" });
 
 // Usuario - Comentario
-Usuario.hasMany(Comentario);
-
-Comentario.belongsTo(Usuario);
+Usuario.hasMany(Comentario, { foreignKey: "idUsuario" });
+Comentario.belongsTo(Usuario, { foreignKey: "idUsuario" });
 
 // Imagen - Comentario
-Imagen.hasMany(Comentario);
-
-Comentario.belongsTo(Imagen);
+Imagen.hasMany(Comentario, { foreignKey: "idImagen" });
+Comentario.belongsTo(Imagen, { foreignKey: "idImagen" });
 
 // Publicacion - Imagen
 Publicacion.hasMany(Imagen, {
   as: "imagenes",
+  foreignKey: "idPublicacion",
 });
-
-Imagen.belongsTo(Publicacion);
+Imagen.belongsTo(Publicacion, { foreignKey: "idPublicacion" });
 
 // Usuario - Interes
-Usuario.hasMany(Interes);
-
-Interes.belongsTo(Usuario);
+Usuario.hasMany(Interes, { foreignKey: "idUsuario" });
+Interes.belongsTo(Usuario, { foreignKey: "idUsuario" });
 
 // Imagen - Interes
-Imagen.hasMany(Interes);
+Imagen.hasMany(Interes, { foreignKey: "idImagen" });
+Interes.belongsTo(Imagen, { foreignKey: "idImagen" });
 
-Interes.belongsTo(Imagen);
+// Usuario - Rol
+Usuario.belongsToMany(Rol, {
+  through: UsuariosRoles,
+  foreignKey: "idUsuario",
+  otherKey: "idRol",
+});
+
+Rol.belongsToMany(Usuario, {
+  through: UsuariosRoles,
+  foreignKey: "idRol",
+  otherKey: "idUsuario",
+});
 
 // Interes - Chat
-Interes.hasOne(Chat);
-
-Chat.belongsTo(Interes);
+Interes.hasOne(Chat, { foreignKey: "idInteres" });
+Chat.belongsTo(Interes, { foreignKey: "idInteres" });
 
 // Chat - Usuario
 Usuario.hasMany(Chat, {
   foreignKey: "idEmisor",
   as: "chatsEnviados",
 });
-
 Usuario.hasMany(Chat, {
   foreignKey: "idDestino",
   as: "chatsRecibidos",
 });
-
 Chat.belongsTo(Usuario, {
   foreignKey: "idEmisor",
   as: "emisor",
 });
-
 Chat.belongsTo(Usuario, {
   foreignKey: "idDestino",
   as: "destino",
 });
 
 // Chat - Mensaje
-Chat.hasMany(Mensaje);
-
-Mensaje.belongsTo(Chat);
+Chat.hasMany(Mensaje, { foreignKey: "idChat" });
+Mensaje.belongsTo(Chat, { foreignKey: "idChat" });
 
 // Usuario - Mensaje
-Usuario.hasMany(Mensaje);
-
-Mensaje.belongsTo(Usuario);
+Usuario.hasMany(Mensaje, { foreignKey: "idUsuario" });
+Mensaje.belongsTo(Usuario, { foreignKey: "idUsuario" });
 
 // Usuario - Valoracion
-Usuario.hasMany(Valoracion);
-
-Valoracion.belongsTo(Usuario);
+Usuario.hasMany(Valoracion, { foreignKey: "idUsuario" });
+Valoracion.belongsTo(Usuario, { foreignKey: "idUsuario" });
 
 // Imagen - Valoracion
-Imagen.hasMany(Valoracion);
-
-Valoracion.belongsTo(Imagen);
+Imagen.hasMany(Valoracion, { foreignKey: "idImagen" });
+Valoracion.belongsTo(Imagen, { foreignKey: "idImagen" });
 
 // Publicacion - Etiqueta
 Publicacion.belongsToMany(Etiqueta, {
   through: "publicacionEtiqueta",
+  foreignKey: "idPublicacion",
+  otherKey: "idEtiqueta",
 });
 
 Etiqueta.belongsToMany(Publicacion, {
   through: "publicacionEtiqueta",
+  foreignKey: "idEtiqueta",
+  otherKey: "idPublicacion",
 });
 
 // Usuario - Coleccion
-Usuario.hasMany(Coleccion);
-
-Coleccion.belongsTo(Usuario);
+Usuario.hasMany(Coleccion, { foreignKey: "idUsuario" });
+Coleccion.belongsTo(Usuario, { foreignKey: "idUsuario" });
 
 // Coleccion - Publicacion
 Coleccion.belongsToMany(Publicacion, {
   through: "coleccionPublicacion",
+  foreignKey: "idColeccion",
+  otherKey: "idPublicacion",
 });
 
 Publicacion.belongsToMany(Coleccion, {
   through: "coleccionPublicacion",
+  foreignKey: "idPublicacion",
+  otherKey: "idColeccion",
 });
 
 // Usuario - Seguimiento
@@ -133,10 +142,12 @@ Usuario.belongsToMany(Usuario, {
 // Usuario - Denuncia
 Usuario.hasMany(Denuncia, {
   foreignKey: "idUsuario",
+  as: "denunciasRealizadas",
 });
 
 Denuncia.belongsTo(Usuario, {
   foreignKey: "idUsuario",
+  as: "denunciante",
 });
 
 // Validador - Denuncia

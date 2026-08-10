@@ -90,11 +90,7 @@ export async function buscarContenido(req, res) {
       return {
         ...pub,
 
-        imagenBase64: imagen
-          ? `data:image/jpeg;base64,${Buffer.from(imagen.url).toString(
-              "base64",
-            )}`
-          : null,
+        imagenBase64: imagen ? blobABase64(imagen.url) : null,
 
         promedioValoraciones,
         cantidadComentarios,

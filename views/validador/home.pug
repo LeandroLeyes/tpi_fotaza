@@ -2,6 +2,266 @@ extends layout
 
 block content
 
-  .public-grid
+    .container-fluid.mt-4
 
-    p Vista Validador
+        h4.mb-4
+            i.bi.bi-shield-check.me-2
+            | Panel del Validador
+
+        if publicacionesPendientes.length === 0 && denunciasComentarios.length === 0
+
+            .text-center.py-5
+                i.bi.bi-check-circle.fs-1.text-success
+                p.text-muted.mt-3 No hay denuncias pendientes.
+
+        else
+
+            if publicacionesPendientes.length > 0
+
+                h5.mb-3.text-danger
+                    i.bi.bi-image.me-2
+                    | Publicaciones denunciadas (#{publicacionesPendientes.length})
+
+                .row.g-3.mb-5
+
+                    each item, index in publicacionesPendientes
+
+                        .col-12
+
+                            .card.border-0.shadow-sm
+
+                                .card-body
+
+                                    .d-flex.justify-content-between.align-items-start
+
+                                        div
+
+                                            h6.mb-1= item.publicacion.titulo
+
+                                            p.text-muted.small.mb-2
+                                                | Autor: 
+                                                strong= item.publicacion.Usuario.username
+
+                                            .badge.bg-danger.me-2 #{item.denuncias.length} denuncias
+
+                                        .d-flex.gap-2.flex-shrink-0.flex-wrap
+
+                                            button.btn.btn-sm.btn-outline-primary(
+                                                type="button"
+                                                data-bs-toggle="modal"
+                                                data-bs-target=`#modalPublicacion${index}`
+                                            )
+                                                i.bi.bi-eye.me-1
+                                                | Revisar
+
+                                            form(
+                                                action=`/validador/publicacion/${item.publicacion.id}/baja`
+                                                method="POST"
+                                            )
+                                                button.btn.btn-sm.btn-danger(type="submit") Dar de baja
+
+                                            form(
+                                                action=`/validador/usuario/${item.publicacion.Usuario.id}/bloquear`
+                                                method="POST"
+                                            )
+                                                button.btn.btn-sm.btn-warning(type="submit") Bloquear usuario
+
+                                            form(
+                                                action=`/validador/publicacion/${item.publicacion.id}/desestimar`
+                                                method="POST"
+                                            )
+                                                button.btn.btn-sm.btn-outline-secondary(type="submit") Desestimar
+
+                                    if item.denuncias.length > 0
+
+                                        hr.my-3
+
+                                        p.small.fw-semibold.mb-2 Motivos reportados:
+
+                                        each denuncia in item.denuncias
+
+                                            .bg-light.rounded.p-2.mb-2.small
+
+                                                .d-flex.justify-content-between
+
+                                                    span
+                                                        strong= denuncia.motivo
+
+                                                    span.text-muted= new Date(denuncia.createdAt).toLocaleDateString('es-AR')
+
+                                                p.mb-0.text-muted= denuncia.descripcion
+
+            if denunciasComentarios.length > 0
+
+                h5.mb-3.text-warning
+                    i.bi.bi-chat-left-text.me-2
+                    | Comentarios denunciados (#{denunciasComentarios.length})
+
+                .row.g-3
+
+                    each denuncia in denunciasComentarios
+
+                        .col-12
+
+                            .card.border-0.shadow-sm
+
+                                .card-body
+
+                                    .d-flex.justify-content-between.align-items-start
+
+                                        div
+
+                                            .bg-light.rounded.p-2.mb-2
+
+                                                p.small.mb-0
+                                                    strong= denuncia.Comentario.Usuario.username
+                                                    |  dijo: 
+                                                    | #{denuncia.Comentario.contenido}
+
+                                            p.small.mb-1
+                                                span.badge.bg-warning.text-dark.me-2= denuncia.motivo
+                                                span.text-muted= denuncia.descripcion
+
+                                        .d-flex.gap-2.flex-shrink-0
+
+                                            form(
+                                                action=`/validador/comentario/${denuncia.Comentario.id}/eliminar`
+                                                method="POST"
+                                            )
+                                                button.btn.btn-sm.btn-danger(type="submit") Eliminar
+
+                                            form(
+                                                action=`/validador/comentario/${denuncia.Comentario.id}/desestimar`
+                                                method="POST"
+                                            )
+                                                button.btn.btn-sm.btn-outline-secondary(type="submit") Desestimar
+
+    //- Modales de revisión de publicaciones
+    each item, index in publicacionesPendientes
+
+        .modal.fade(
+            id=`modalPublicacion${index}`
+            tabindex="-1"
+            aria-hidden="true"
+        )
+
+            .modal-dialog.modal-lg.modal-dialog-centered
+
+                .modal-content
+
+                    .modal-header.border-0
+
+                        h5.modal-title
+                            | Revisando: 
+                            strong= item.publicacion.titulo
+
+                        button.btn-close(
+                            type="button"
+                            data-bs-dismiss="modal"
+                        )
+
+                    .modal-body
+
+                        .row.g-3
+
+                            .col-md-7
+
+                                if item.publicacion.imagenes && item.publicacion.imagenes.length
+
+                                    if item.publicacion.imagenes.length === 1
+
+                                        img.img-fluid.rounded.w-100(
+                                            src=item.publicacion.imagenes[0].imagenBase64
+                                            alt=item.publicacion.titulo
+                                            style="max-height:400px; object-fit:cover"
+                                        )
+
+                                    else
+
+                                        - const carouselId = `carouselModal${index}`
+
+                                        div(id=carouselId class="carousel slide")
+
+                                            .carousel-inner
+
+                                                each imagen, imgIndex in item.publicacion.imagenes
+
+                                                    .carousel-item(class=imgIndex === 0 ? "active" : "")
+
+                                                        img.d-block.w-100.rounded(
+                                                            src=imagen.imagenBase64
+                                                            alt=item.publicacion.titulo
+                                                            style="max-height:400px; object-fit:cover"
+                                                        )
+
+                                            button.carousel-control-prev(
+                                                type="button"
+                                                data-bs-target=`#${carouselId}`
+                                                data-bs-slide="prev"
+                                            )
+                                                span.carousel-control-prev-icon
+
+                                            button.carousel-control-next(
+                                                type="button"
+                                                data-bs-target=`#${carouselId}`
+                                                data-bs-slide="next"
+                                            )
+                                                span.carousel-control-next-icon
+
+                                else
+
+                                    .text-muted.small Sin imágenes disponibles.
+
+                            .col-md-5
+
+                                .d-flex.align-items-center.gap-2.mb-3
+
+                                    if item.publicacion.Usuario.avatar
+
+                                        img.rounded-circle(
+                                            src=item.publicacion.Usuario.avatar
+                                            width="40"
+                                            height="40"
+                                            style="object-fit:cover"
+                                        )
+
+                                    else
+
+                                        .avatar-placeholder.rounded-circle.avatar-sm= item.publicacion.Usuario.name[0].toUpperCase() + item.publicacion.Usuario.lastName[0].toUpperCase()
+
+                                    div
+
+                                        p.mb-0.fw-semibold= item.publicacion.Usuario.username
+
+                                        small.text-muted= item.publicacion.Usuario.email
+
+                                hr
+
+                                if item.publicacion.descripcion
+
+                                    p.small= item.publicacion.descripcion
+
+                                else
+
+                                    p.small.text-muted Sin descripción.
+
+                    .modal-footer.border-0.justify-content-between
+
+                        button.btn.btn-outline-secondary(
+                            type="button"
+                            data-bs-dismiss="modal"
+                        ) Cerrar
+
+                        .d-flex.gap-2
+
+                            form(
+                                action=`/validador/publicacion/${item.publicacion.id}/baja`
+                                method="POST"
+                            )
+                                button.btn.btn-danger(type="submit") Dar de baja
+
+                            form(
+                                action=`/validador/publicacion/${item.publicacion.id}/desestimar`
+                                method="POST"
+                            )
+                                button.btn.btn-outline-secondary(type="submit") Desestimar

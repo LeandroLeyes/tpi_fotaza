@@ -23,14 +23,14 @@ export async function crearPublicacion(req, res) {
       etiquetas,
       copyright: copyrightStr,
     } = req.datosValidados;
-    const usuarioId = req.session.usuario.id;
+    const idUsuario = req.session.usuario.id;
     const username = req.session.usuario.username;
     const copyright = copyrightStr === "true";
 
     publicacion = await Publicacion.create({
       titulo,
       descripcion,
-      UsuarioId: usuarioId,
+      idUsuario: idUsuario,
     });
 
     for (const archivo of req.files) {
@@ -61,7 +61,7 @@ export async function crearPublicacion(req, res) {
       await Imagen.create({
         url: imagenProcesada,
         copyright,
-        PublicacionId: publicacion.id,
+        idPublicacion: publicacion.id,
       });
     }
 
@@ -144,7 +144,7 @@ export async function renderPublicacion(req, res) {
       return res.redirect("/usuario/home");
     }
 
-    const esPropietario = publicacion.UsuarioId === req.session.usuario.id;
+    const esPropietario = publicacion.idUsuario === req.session.usuario.id;
 
     res.render("usuario/publicaciones/verPublicacion", {
       title: pub.titulo,
@@ -161,30 +161,30 @@ export async function renderPublicacion(req, res) {
 export async function crearComentario(req, res) {
   try {
     const idImagen = req.params.idImagen;
-    const { publicacionId } = req.body;
+    const { idPublicacion } = req.body;
 
     const imagen = await Imagen.findByPk(idImagen, {
       include: [{ model: Publicacion }],
     });
 
     if (!imagen) {
-      return res.redirect(`/usuario/publicaciones/${publicacionId}`);
+      return res.redirect(`/usuario/publicaciones/${idPublicacion}`);
     }
 
     if (!imagen.Publicacion.comentariosActivo) {
-      return res.redirect(`/usuario/publicaciones/${imagen.PublicacionId}`);
+      return res.redirect(`/usuario/publicaciones/${imagen.idPublicacion}`);
     }
 
     await Comentario.create({
       contenido: req.datosValidados.contenido,
-      ImagenId: idImagen,
-      UsuarioId: req.session.usuario.id,
+      idImagen: idImagen,
+      idUsuario: req.session.usuario.id,
     });
 
-    return res.redirect(`/usuario/publicaciones/${imagen.PublicacionId}`);
+    return res.redirect(`/usuario/publicaciones/${imagen.idPublicacion}`);
   } catch (error) {
     console.error("Error al crear comentario:", error);
-    return res.redirect(`/usuario/publicaciones/${req.body.publicacionId}`);
+    return res.redirect(`/usuario/publicaciones/${req.body.idPublicacion}`);
   }
 }
 
@@ -199,23 +199,23 @@ export async function valorarImagen(req, res) {
     const imagen = await Imagen.findByPk(req.params.idImagen, {
       include: {
         model: Publicacion,
-        attributes: ["id", "UsuarioId"],
+        attributes: ["id", "idUsuario"],
       },
     });
 
     const esPropietario =
-      imagen.Publicacion.UsuarioId === req.session.usuario.id;
+      imagen.Publicacion.idUsuario === req.session.usuario.id;
 
     if (esPropietario) {
-      return res.redirect(`/usuario/publicaciones/${imagen.PublicacionId}`);
+      return res.redirect(`/usuario/publicaciones/${imagen.idPublicacion}`);
     }
 
     const puntaje = Number(req.body.puntaje);
 
     const valoracionExistente = await Valoracion.findOne({
       where: {
-        UsuarioId: usuario.id,
-        ImagenId: req.params.idImagen,
+        idUsuario: usuario.id,
+        idImagen: req.params.idImagen,
       },
     });
 
@@ -226,12 +226,12 @@ export async function valorarImagen(req, res) {
     } else {
       await Valoracion.create({
         puntaje,
-        UsuarioId: usuario.id,
-        ImagenId: req.params.idImagen,
+        idUsuario: usuario.id,
+        idImagen: req.params.idImagen,
       });
     }
 
-    return res.redirect(`/usuario/publicaciones/${imagen.PublicacionId}`);
+    return res.redirect(`/usuario/publicaciones/${imagen.idPublicacion}`);
   } catch (error) {
     console.error(error);
     res.send("Error al valorar imagen");
@@ -260,7 +260,7 @@ export async function eliminarPublicacion(req, res) {
       return res.redirect("/usuario/home");
     }
 
-    if (publicacion.UsuarioId !== req.session.usuario.id) {
+    if (publicacion.idUsuario !== req.session.usuario.id) {
       return res.redirect(`/usuario/publicaciones/${publicacion.id}`);
     }
 
@@ -281,7 +281,7 @@ export async function mostrarFormEditar(req, res) {
 
     if (!publicacion) return res.redirect("/usuario/home");
 
-    if (publicacion.UsuarioId !== req.session.usuario.id) {
+    if (publicacion.idUsuario !== req.session.usuario.id) {
       return res.redirect(`/usuario/publicaciones/${publicacion.id}`);
     }
 
@@ -311,11 +311,10 @@ export async function editarPublicacion(req, res) {
 
     if (!publicacion) return res.redirect("/usuario/home");
 
-    if (publicacion.UsuarioId !== req.session.usuario.id) {
+    if (publicacion.idUsuario !== req.session.usuario.id) {
       return res.redirect(`/usuario/publicaciones/${publicacion.id}`);
     }
 
-    // Helper para volver al form con errores
     const volverAlForm = async (errores) => {
       const pub = publicacion.toJSON();
       pub.imagenes = pub.imagenes.map((img) => ({
@@ -361,12 +360,11 @@ export async function editarPublicacion(req, res) {
 
       for (const idImg of eliminarIds) {
         await Imagen.destroy({
-          where: { id: idImg, PublicacionId: publicacion.id },
+          where: { id: idImg, idPublicacion: publicacion.id },
         });
       }
     }
 
-    // Agregar nuevas imágenes si se subieron
     if (req.files && req.files.length > 0) {
       for (const archivo of req.files) {
         const tiposPermitidos = [
@@ -385,7 +383,7 @@ export async function editarPublicacion(req, res) {
         await Imagen.create({
           url: imagenProcesada,
           copyright: false,
-          PublicacionId: publicacion.id,
+          idPublicacion: publicacion.id,
         });
       }
     }
@@ -408,5 +406,30 @@ export async function editarPublicacion(req, res) {
   } catch (error) {
     console.error("Error al editar publicación:", error);
     return res.redirect(`/usuario/publicaciones/${req.params.id}`);
+  }
+}
+
+export async function eliminarComentario(req, res) {
+  try {
+    const comentario = await Comentario.findByPk(req.params.idComentario, {
+      include: [{ model: Imagen }],
+    });
+
+    if (!comentario) return res.redirect("/usuario/home");
+
+    if (comentario.idUsuario !== req.session.usuario.id) {
+      return res.redirect(
+        `/usuario/publicaciones/${comentario.Imagen.idPublicacion}`,
+      );
+    }
+
+    const idPublicacion = comentario.Imagen.idPublicacion;
+
+    await comentario.destroy();
+
+    return res.redirect(`/usuario/publicaciones/${idPublicacion}`);
+  } catch (error) {
+    console.error("Error al eliminar comentario:", error);
+    return res.redirect("/usuario/home");
   }
 }

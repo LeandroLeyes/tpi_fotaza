@@ -4,6 +4,7 @@ import { Imagen } from "../models/imagen.js";
 import { Usuario } from "../models/usuario.js";
 import { Seguimiento } from "../models/seguimiento.js";
 import { Valoracion } from "../models/valoracion.js";
+import { Rol } from "../models/rol.js";
 import sharp from "sharp";
 import blobABase64 from "../helpers/blobAbase64.js";
 
@@ -36,14 +37,14 @@ function mapearPublicaciones(pubs) {
 export async function mostrarHome(req, res) {
   try {
     const feed = req.query.feed;
-    const usuarioId = req.session.usuario.id;
+    const idUsuario = req.session.usuario.id;
 
     let publicaciones = [];
     let sinSeguidos = false;
 
     if (feed === "siguiendo") {
       const seguidos = await Seguimiento.findAll({
-        where: { idSeguidor: usuarioId },
+        where: { idSeguidor: idUsuario },
         attributes: ["idSeguido"],
       });
 
@@ -53,7 +54,7 @@ export async function mostrarHome(req, res) {
         sinSeguidos = true;
       } else {
         const pubs = await Publicacion.findAll({
-          where: { UsuarioId: idsSeguidos },
+          where: { idUsuario: idsSeguidos },
           include: [
             { model: Usuario },
             { model: Imagen, as: "imagenes", include: [Valoracion] },
@@ -87,7 +88,7 @@ export async function renderPerfil(req, res) {
     const usuario = await Usuario.findByPk(req.session.usuario.id);
 
     const publicacionesBD = await Publicacion.findAll({
-      where: { UsuarioId: usuario.id },
+      where: { idUsuario: usuario.id },
       include: [{ model: Imagen, as: "imagenes", include: [Valoracion] }],
       order: [["createdAt", "DESC"]],
     });
@@ -130,6 +131,15 @@ export async function seguirUsuario(req, res) {
       return res.redirect(`/usuario/perfil/${req.params.id}`);
     }
 
+    // No se puede seguir a un validador o admin
+    const usuarioASeguir = await Usuario.findByPk(idSeguido, {
+      include: [{ model: Rol }],
+    });
+    const rolASeguir = usuarioASeguir?.Rols?.[0]?.nombre;
+    if (rolASeguir === "validador" || rolASeguir === "admin") {
+      return res.redirect("/usuario/home");
+    }
+
     const seguimiento = await Seguimiento.findOne({
       where: { idSeguidor, idSeguido },
       paranoid: false,
@@ -164,14 +174,20 @@ export async function dejarDeSeguir(req, res) {
 
 export async function renderPerfilUsuario(req, res) {
   try {
-    const usuario = await Usuario.findByPk(req.params.id);
+    const usuario = await Usuario.findByPk(req.params.id, {
+      include: [{ model: Rol }],
+    });
 
-    if (!usuario) {
+    if (!usuario) return res.redirect("/usuario/home");
+
+    // Ocultar perfiles de validadores y admins a usuarios normales
+    const rolUsuario = usuario.Rols?.[0]?.nombre;
+    if (rolUsuario === "validador" || rolUsuario === "admin") {
       return res.redirect("/usuario/home");
     }
 
     const publicacionesBD = await Publicacion.findAll({
-      where: { UsuarioId: usuario.id },
+      where: { idUsuario: usuario.id },
       include: [{ model: Imagen, as: "imagenes", include: [Valoracion] }],
       order: [["createdAt", "DESC"]],
     });
@@ -304,10 +320,10 @@ export async function actualizarPerfil(req, res) {
 
 export async function mostrarSiguiendo(req, res) {
   try {
-    const usuarioId = req.session.usuario.id;
+    const idUsuario = req.session.usuario.id;
 
     const seguidos = await Seguimiento.findAll({
-      where: { idSeguidor: usuarioId },
+      where: { idSeguidor: idUsuario },
       attributes: ["idSeguido"],
     });
 
@@ -317,7 +333,7 @@ export async function mostrarSiguiendo(req, res) {
 
     if (idsSeguidos.length > 0) {
       const pubs = await Publicacion.findAll({
-        where: { UsuarioId: idsSeguidos },
+        where: { idUsuario: idsSeguidos },
         include: [
           { model: Usuario },
           { model: Imagen, as: "imagenes", include: [Valoracion] },

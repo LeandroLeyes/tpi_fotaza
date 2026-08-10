@@ -22,14 +22,15 @@ header.topbar
               src=usuario.avatar,
               alt="avatar"
             )
+          
           else
-            .avatar-placeholder.rounded-circle.shadow.avatar-topbar= usuario.name[0].toUpperCase()+usuario.lastName[0].toUpperCase()
+            .avatar-placeholder.rounded-circle.shadow(style="width: 42px; height: 42px; font-size: 18px")= usuario.name[0].toUpperCase()+usuario.lastName[0].toUpperCase()
 
         ul.dropdown-menu.dropdown-menu-end
 
           li
             a.dropdown-item(
-              href="/usuario/perfil"
+              href= usuario.rol === 'validador' ? '/validador/perfil' : usuario.rol === 'admin' ? '/admin/perfil' : '/usuario/perfil'
             )
               | Ver perfil
 

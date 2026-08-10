@@ -182,3 +182,16 @@ export function formatearErrores(zodError) {
   }
   return errores;
 }
+
+//DENUNCIAS
+export const denunciaSchema = z.object({
+  motivo: z
+    .string({ required_error: "Debés seleccionar un motivo" })
+    .min(1, "Debés seleccionar un motivo")
+    .max(100, "El motivo no puede superar los 100 caracteres"),
+
+  descripcion: z
+    .string({ required_error: "La descripción es obligatoria" })
+    .min(10, "La descripción debe tener al menos 10 caracteres")
+    .max(500, "La descripción no puede superar los 500 caracteres"),
+});

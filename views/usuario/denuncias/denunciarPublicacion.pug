@@ -1,0 +1,69 @@
+extends ../layout
+
+block content
+
+    .container.mt-4
+
+        .row.justify-content-center
+
+            .col-lg-6
+
+                .card.border-0.shadow-sm
+
+                    .card-header.bg-white.border-0.pt-4.pb-0
+
+                        h4.mb-0
+                            i.bi.bi-flag.text-danger.me-2
+                            | Denunciar publicación
+
+                        p.text-muted.small.mt-1 Esta denuncia será revisada por nuestro equipo de moderación.
+
+                    .card-body.pt-3
+
+                        .alert.alert-warning.border-0.rounded-3.mb-4
+                            i.bi.bi-info-circle.me-2
+                            strong #{publicacion.titulo}
+
+                        if errores && errores.general
+                            include ../../partials/alert
+                            +alert({ status: 'error', text: errores.general })
+
+                        form(action=`/denuncia/publicacion/${publicacion.id}` method="POST")
+
+                            .mb-3
+                                label.form-label.fw-semibold Motivo *
+                                select.form-select(
+                                    name="motivo"
+                                    class= errores && errores.motivo ? 'is-invalid' : ''
+                                )
+                                    option(value="" disabled selected) Seleccioná un motivo
+                                    option(value="contenido inapropiado") Contenido inapropiado
+                                    option(value="spam") Spam o publicidad
+                                    option(value="violencia") Violencia o contenido perturbador
+                                    option(value="derechos de autor") Violación de derechos de autor
+                                    option(value="acoso") Acoso o intimidación
+                                    option(value="desinformacion") Desinformación
+                                    option(value="otro") Otro
+
+                                if errores && errores.motivo
+                                    .invalid-feedback #{errores.motivo}
+
+                            .mb-4
+                                label.form-label.fw-semibold Descripción *
+                                textarea.form-control(
+                                    name="descripcion"
+                                    rows="4"
+                                    placeholder="Describí el problema con esta publicación..."
+                                    class= errores && errores.descripcion ? 'is-invalid' : ''
+                                )= formValues && formValues.descripcion
+                                .form-text Mínimo 10 caracteres.
+                                if errores && errores.descripcion
+                                    .invalid-feedback #{errores.descripcion}
+
+                            .d-flex.gap-2
+
+                                button.btn.btn-danger(type="submit") Enviar denuncia
+
+                                a.btn.btn-outline-secondary(
+                                    href=`/usuario/publicaciones/${publicacion.id}`
+                                ) Cancelar

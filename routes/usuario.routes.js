@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { isAuthenticated } from "../middlewares/auth.middleware.js";
+import { isSoloUsuario } from "../middlewares/rol.middleware.js";
 import {
   crearPublicacion,
   mostrarFormPublicacion,
@@ -31,6 +32,7 @@ import {
 const usuario = Router();
 
 usuario.use(isAuthenticated);
+usuario.use(isSoloUsuario);
 
 // Home
 usuario.get("/home", mostrarHome);

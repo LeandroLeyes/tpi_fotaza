@@ -1,0 +1,39 @@
+extends layout
+
+block content
+
+    .container.mt-4
+
+        .row.justify-content-center
+
+            .col-lg-6
+
+                .card.border-0.shadow-sm
+
+                    .card-body.text-center.py-4
+
+                        if usuario.avatar
+
+                            img.rounded-circle.shadow.mb-3(
+                                src=usuario.avatar
+                                width="100"
+                                height="100"
+                                style="object-fit:cover"
+                            )
+
+                        else
+
+                            .avatar-placeholder.rounded-circle.shadow.mx-auto.mb-3= usuario.name[0].toUpperCase() + usuario.lastName[0].toUpperCase()
+
+                        h5.mb-0= usuario.username
+
+                        span.badge.bg-warning.text-dark.mt-2 Validador
+
+                        if usuario.bio
+                            p.text-muted.mt-3= usuario.bio
+
+                    .card-footer.bg-white.border-0
+
+                        a.btn.btn-outline-secondary.w-100(href="/validador/perfil/editar")
+                            i.bi.bi-pencil.me-2
+                            | Editar perfil
