@@ -1,0 +1,65 @@
+extends layout
+
+block content
+    .container-fluid.mt-4
+        .d-flex.justify-content-between.align-items-center.mb-4
+            h2
+                i.bi.bi-bell.me-2
+                | Notificaciones
+
+            if notificaciones && notificaciones.length
+                form(
+                    action="/usuario/notificaciones/marcar-todas-leidas"
+                    method="POST"
+                )
+                    button.btn.btn-outline-success(type="submit")
+                        i.bi.bi-check2-all.me-1
+                        | Marcar todas como leídas
+
+        if notificaciones && notificaciones.length
+            .list-group.shadow-sm
+                each notificacion in notificaciones
+                    .list-group-item(
+                        class=notificacion.leida ? "" : "list-group-item-light fw-bold"
+                    )
+                        .d-flex.justify-content-between.align-items-center
+                            .d-flex.align-items-center
+
+                                if notificacion.origen
+                                    if notificacion.origen.avatar
+                                        img.rounded-circle.me-3(
+                                            src=notificacion.origen.avatar
+                                            width="45"
+                                            height="45"
+                                            style="object-fit: cover;"
+                                        )
+                                    else
+                                        .rounded-circle.bg-success.text-white.d-flex.align-items-center.justify-content-center.me-3(
+                                            style="width:45px;height:45px;"
+                                        )
+                                            = notificacion.origen.username[0].toUpperCase()
+
+                                .notification-content
+                                    p.mb-1= notificacion.mensaje
+                                    small.text-muted
+                                        = new Date(notificacion.createdAt).toLocaleString("es-AR")
+
+                            if !notificacion.leida
+                                form(
+                                    action=`/usuario/notificaciones/${notificacion.id}/leida`
+                                    method="POST"
+                                )
+                                    button.btn.btn-sm.btn-outline-secondary(
+                                        type="submit"
+                                        title="Marcar como leída"
+                                    )
+                                        i.bi.bi-check2
+                                        |  Leída
+
+        else
+            .card.shadow-sm
+                .card-body.text-center.py-5
+                    i.bi.bi-bell-slash.fs-1.text-muted
+                    h4.mt-3 No tenés notificaciones
+                    p.text-muted.mb-0
+                        | Cuando alguien interactúe con vos, aparecerán acá.
