@@ -147,10 +147,25 @@ export async function seguirUsuario(req, res) {
     });
 
     if (!seguimiento) {
-      await Seguimiento.create({ idSeguidor, idSeguido });
-    } else if (seguimiento.deletedAt) {
-      await seguimiento.restore();
-    }
+    await Seguimiento.create({ idSeguidor, idSeguido });
+
+    await crearNotificacion(
+        idSeguido,
+        idSeguidor,
+        "seguimiento",
+        `${req.session.usuario.username} comenzó a seguirte`
+    );
+
+} else if (seguimiento.deletedAt) {
+    await seguimiento.restore();
+
+    await crearNotificacion(
+        idSeguido,
+        idSeguidor,
+        "seguimiento",
+        `${req.session.usuario.username} comenzó a seguirte`
+    );
+}
 
     return res.redirect(`/usuario/perfil/${req.params.id}`);
   } catch (error) {
