@@ -17,8 +17,11 @@
     a.sidebar-link(href="/usuario/publicaciones/crear"  class=isActive("/usuario/publicaciones/crear") ? "active" : "")
       i.bi.bi-plus-square
 
-    a.sidebar-link(href="#" class=isActive("/usuario/notificaciones") ? "active" : "")
-      i.bi.bi-bell
+    a.sidebar-link.position-relative(href="/usuario/notificaciones")
+        i.bi.bi-bell
+
+        if hayNotificacionesNoLeidas
+            span.notification-dot
 
     a.sidebar-link(href="#" class=isActive("/usuario/chat") ? "active" : "")
       i.bi.bi-chat-dots

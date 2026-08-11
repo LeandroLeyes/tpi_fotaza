@@ -1,11 +1,29 @@
-export function sesionData(req, res, next) {
+import { Notificacion } from "../models/notificacion.js";
+
+export async function sesionData(req, res, next) {
+  res.locals.hayNotificacionesNoLeidas = false;
+
+  if (req.session.usuario) {
+    try {
+      const notificacion = await Notificacion.findOne({
+        where: {
+          idUsuarioDestino: req.session.usuario.id,
+          leida: false,
+        },
+      });
+
+      res.locals.hayNotificacionesNoLeidas = !!notificacion;
+    } catch (error) {
+      console.error("Error al comprobar notificaciones:", error);
+    }
+  }
+
   res.locals.usuario = req.session.usuario;
 
   res.locals.isActive = (ruta) => {
     return req.path.startsWith(ruta);
   };
 
-  // Helper para chequear rol en las vistas sin lógica en PUG
   res.locals.esValidador =
     req.session.usuario?.rol === "validador" ||
     req.session.usuario?.rol === "admin";
