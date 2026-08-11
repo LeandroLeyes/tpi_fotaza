@@ -23,11 +23,20 @@ import {
   mostrarSiguiendo,
 } from "../controllers/usuario.controller.js";
 import upload from "../middlewares/upload.middleware.js";
-import { validar, validarYRedirigir, validarConArchivos } from "../middlewares/validar.middleware.js";
+import {
+  validar,
+  validarYRedirigir,
+  validarConArchivos,
+} from "../middlewares/validar.middleware.js";
 import {
   publicacionSchema,
   comentarioSchema,
 } from "../schemas/validaciones.js";
+import {
+  mostrarNotificaciones,
+  marcarNotificacionLeida,
+  marcarTodasLeidas,
+} from "../controllers/notificacion.controller.js";
 
 const usuario = Router();
 
@@ -43,11 +52,7 @@ usuario.get("/siguiendo", mostrarSiguiendo);
 // Perfil
 usuario.get("/perfil", renderPerfil);
 usuario.get("/perfil/editar", mostrarEditarPerfil);
-usuario.post(
-  "/perfil/editar",
-  upload.single("avatar"),
-  actualizarPerfil,
-);
+usuario.post("/perfil/editar", upload.single("avatar"), actualizarPerfil);
 usuario.post("/seguir/:id", seguirUsuario);
 usuario.post("/dejar-seguir/:id", dejarDeSeguir);
 usuario.get("/perfil/:id", renderPerfilUsuario);
@@ -57,14 +62,21 @@ usuario.get("/publicaciones/crear", mostrarFormPublicacion);
 usuario.post(
   "/publicaciones/crear",
   upload.array("imagenes", 10),
-  validarConArchivos(publicacionSchema, "usuario/publicaciones/crearPublicacion"),
+  validarConArchivos(
+    publicacionSchema,
+    "usuario/publicaciones/crearPublicacion",
+  ),
   crearPublicacion,
 );
 usuario.get("/publicaciones/:id", renderPublicacion);
 usuario.post("/publicaciones/:id/comentarios", cambiarEstadoComentarios);
 usuario.post("/publicaciones/:id/eliminar", eliminarPublicacion);
 usuario.get("/publicaciones/:id/editar", mostrarFormEditar);
-usuario.post("/publicaciones/:id/editar", upload.array("imagenes", 10), editarPublicacion);
+usuario.post(
+  "/publicaciones/:id/editar",
+  upload.array("imagenes", 10),
+  editarPublicacion,
+);
 
 // Comentarios
 usuario.post(
@@ -78,5 +90,10 @@ usuario.post(
 
 // Valoraciones
 usuario.post("/valoraciones/:idImagen", valorarImagen);
+
+// Notificaciones
+usuario.get("/notificaciones", mostrarNotificaciones);
+usuario.post("/notificaciones/:id/leida", marcarNotificacionLeida);
+usuario.post("/notificaciones/marcar-todas-leidas", marcarTodasLeidas);
 
 export default usuario;
