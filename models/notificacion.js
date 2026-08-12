@@ -19,6 +19,11 @@ Notificacion.init(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+
+    idReferencia: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
   },
   {
     sequelize,

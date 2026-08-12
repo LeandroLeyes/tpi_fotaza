@@ -6,6 +6,7 @@ import { Comentario } from "../models/comentario.js";
 import { Valoracion } from "../models/valoracion.js";
 import sharp from "sharp";
 import blobABase64 from "../helpers/blobAbase64.js";
+import crearNotificacion from "../helpers/notificaciones.helper.js";
 
 export function mostrarFormPublicacion(req, res) {
   res.render("usuario/publicaciones/crearPublicacion", {
@@ -181,6 +182,15 @@ export async function crearComentario(req, res) {
       idUsuario: req.session.usuario.id,
     });
 
+    // Notificar al autor de la publicación
+    await crearNotificacion(
+      imagen.Publicacion.idUsuario,
+      req.session.usuario.id,
+      "comentario",
+      `${req.session.usuario.username} comentó tu publicación`,
+      imagen.Publicacion.id,
+    );
+
     return res.redirect(`/usuario/publicaciones/${imagen.idPublicacion}`);
   } catch (error) {
     console.error("Error al crear comentario:", error);
@@ -220,15 +230,21 @@ export async function valorarImagen(req, res) {
     });
 
     if (valoracionExistente) {
-      await valoracionExistente.update({
-        puntaje,
-      });
+      await valoracionExistente.update({ puntaje });
     } else {
       await Valoracion.create({
         puntaje,
         idUsuario: usuario.id,
         idImagen: req.params.idImagen,
       });
+
+      await crearNotificacion(
+        imagen.Publicacion.idUsuario,
+        usuario.id,
+        "valoracion",
+        `${usuario.username} valoró una de tus imágenes con ${puntaje} ⭐`,
+        imagen.Publicacion.id,
+      );
     }
 
     return res.redirect(`/usuario/publicaciones/${imagen.idPublicacion}`);

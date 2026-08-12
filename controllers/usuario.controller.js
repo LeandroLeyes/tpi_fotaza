@@ -7,7 +7,7 @@ import { Valoracion } from "../models/valoracion.js";
 import { Rol } from "../models/rol.js";
 import sharp from "sharp";
 import blobABase64 from "../helpers/blobAbase64.js";
-import crearNotificacion from "../helpers/notificacion.js";
+import crearNotificacion from "../helpers/notificaciones.helper.js";
 
 function mapearPublicaciones(pubs) {
   return pubs.map((pub) => {

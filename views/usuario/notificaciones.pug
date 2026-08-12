@@ -18,35 +18,67 @@ block content
 
         if notificaciones && notificaciones.length
             .list-group.shadow-sm
-                each notificacion in notificaciones
-                    .list-group-item(
-                        class=notificacion.leida ? "" : "list-group-item-light fw-bold"
+
+                each notif in notificaciones
+
+                    - const url = (notif.tipo === 'seguimiento' || !notif.idReferencia) ? null : `/usuario/publicaciones/${notif.idReferencia}`
+
+                    .list-group-item.list-group-item-action(
+                        class=notif.leida ? "" : "list-group-item-light fw-bold"
+                        style="cursor: default;"
                     )
-                        .d-flex.justify-content-between.align-items-center
-                            .d-flex.align-items-center
+                        .d-flex.justify-content-between.align-items-center.gap-3
 
-                                if notificacion.origen
-                                    if notificacion.origen.avatar
-                                        img.rounded-circle.me-3(
-                                            src=notificacion.origen.avatar
-                                            width="45"
-                                            height="45"
-                                            style="object-fit: cover;"
-                                        )
-                                    else
-                                        .rounded-circle.bg-success.text-white.d-flex.align-items-center.justify-content-center.me-3(
-                                            style="width:45px;height:45px;"
-                                        )
-                                            = notificacion.origen.username[0].toUpperCase()
+                            if url
+                                a.d-flex.align-items-center.gap-3.text-decoration-none.text-dark.flex-grow-1(
+                                    href=url
+                                )
+                                    if notif.origen
+                                        if notif.origen.avatar
+                                            img.rounded-circle(
+                                                src=notif.origen.avatar
+                                                width="45"
+                                                height="45"
+                                                style="object-fit: cover; flex-shrink:0"
+                                            )
+                                        else
+                                            .rounded-circle.bg-success.text-white.d-flex.align-items-center.justify-content-center(
+                                                style="width:45px;height:45px;flex-shrink:0"
+                                            )
+                                                = notif.origen.username[0].toUpperCase()
+                                    .notification-content
+                                        p.mb-1= notif.mensaje
+                                        small.text-muted= new Date(notif.createdAt).toLocaleString("es-AR")
+                                        if notif.tipo === 'comentario'
+                                            span.badge.bg-secondary.ms-2 💬 Ver publicación
+                                        else if notif.tipo === 'valoracion'
+                                            span.badge.bg-secondary.ms-2 ⭐ Ver publicación
+                                        else if notif.tipo === 'interes'
+                                            span.badge.bg-secondary.ms-2 🖼 Ver publicación
+                            else
+                                .d-flex.align-items-center.gap-3.flex-grow-1
 
-                                .notification-content
-                                    p.mb-1= notificacion.mensaje
-                                    small.text-muted
-                                        = new Date(notificacion.createdAt).toLocaleString("es-AR")
+                                    if notif.origen
+                                        if notif.origen.avatar
+                                            img.rounded-circle(
+                                                src=notif.origen.avatar
+                                                width="45"
+                                                height="45"
+                                                style="object-fit: cover;"
+                                            )
+                                        else
+                                            .rounded-circle.bg-success.text-white.d-flex.align-items-center.justify-content-center(
+                                                style="width:45px;height:45px;flex-shrink:0"
+                                            )
+                                                = notif.origen.username[0].toUpperCase()
 
-                            if !notificacion.leida
+                                    .notification-content
+                                        p.mb-1= notif.mensaje
+                                        small.text-muted= new Date(notif.createdAt).toLocaleString("es-AR")
+
+                            if !notif.leida
                                 form(
-                                    action=`/usuario/notificaciones/${notificacion.id}/leida`
+                                    action=`/usuario/notificaciones/${notif.id}/leida`
                                     method="POST"
                                 )
                                     button.btn.btn-sm.btn-outline-secondary(

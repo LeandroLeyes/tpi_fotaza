@@ -53,7 +53,7 @@ connectDatabase()
         console.error("Error al iniciar el servidor:", error);
         return;
       }
-      console.log(`Servidor escuchando en el puerto ${PORT}`);
+      console.log(`Servidor escuchando en: http://localhost:${PORT}`);
     });
   })
   .catch((error) => {
