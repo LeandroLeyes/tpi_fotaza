@@ -57,13 +57,24 @@ block content
 
                             h2.card-title.mb-0= publicacion.titulo
 
-                            .dropdown
+                            .d-flex.gap-2.align-items-center
 
-                                button.btn.btn-light.btn-sm(
-                                    type="button"
-                                    data-bs-toggle="dropdown"
-                                    aria-expanded="false"
-                                ) ⋮
+                                if !esPropietario
+                                    button.btn.btn-light.btn-sm(
+                                        type="button"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalGuardarColeccion"
+                                        title="Guardar en colección"
+                                    )
+                                        i.bi.bi-bookmark
+
+                                .dropdown
+
+                                    button.btn.btn-light.btn-sm(
+                                        type="button"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false"
+                                    ) ⋮
 
                                 ul.dropdown-menu.dropdown-menu-end
 
@@ -185,6 +196,14 @@ block content
                                                     value=`${i}`
                                                     class=imagen.Valoracions && imagen.Valoracions.find(v => v.idUsuario === miUsuarioId && v.puntaje === i) ? 'star-active' : ''
                                                 ) ★
+
+                                    form(
+                                        action=`/usuario/chat/interes/${imagen.id}`
+                                        method="POST"
+                                    )
+                                        button.btn.btn-outline-success.w-100.mb-3(type="submit")
+                                            i.bi.bi-heart.me-2
+                                            | Me interesa
 
                                     hr
 
@@ -341,6 +360,77 @@ block content
                         )
 
                             button.btn.btn-danger(type="submit") Si, eliminar
+
+    //- Modal guardar en colección
+    if !esPropietario
+
+        #modalGuardarColeccion.modal.fade(tabindex="-1" aria-hidden="true")
+
+            .modal-dialog.modal-dialog-centered
+
+                .modal-content
+
+                    .modal-header.border-0
+
+                        h5.modal-title
+                            i.bi.bi-bookmark.me-2
+                            | Guardar en colección
+
+                        button.btn-close(type="button" data-bs-dismiss="modal")
+
+                    .modal-body
+
+                        #coleccionesLista.d-flex.flex-column.gap-2
+
+                            p.text-muted.text-center.small Cargando colecciones...
+
+                    .modal-footer.border-0.flex-column.align-items-stretch.gap-2
+
+                        hr.mt-0
+
+                        p.text-muted.small.mb-1 O creá una nueva colección:
+
+                        .d-flex.gap-2
+
+                            form.d-flex.gap-2.w-100(
+                                action="/usuario/colecciones/crear"
+                                method="POST"
+                            )
+                                input.form-control.form-control-sm(
+                                    type="text"
+                                    name="nombre"
+                                    placeholder="Nombre de la colección"
+                                    maxlength="50"
+                                    required
+                                )
+                                button.btn.btn-sm.btn-success(type="submit") Crear
+
+    script.
+
+        const modalGuardar = document.getElementById('modalGuardarColeccion');
+        if (modalGuardar) {
+            modalGuardar.addEventListener('show.bs.modal', async () => {
+                const lista = document.getElementById('coleccionesLista');
+                try {
+                    const res = await fetch('/usuario/colecciones/api');
+                    const colecciones = await res.json();
+                    if (colecciones.length === 0) {
+                        lista.innerHTML = '<p class="text-muted text-center small">No tenés colecciones. Creá una abajo.</p>';
+                    } else {
+                        lista.innerHTML = colecciones.map(c => `
+                            <form action="/usuario/publicaciones/${publicacion.id}/guardar" method="POST" class="d-grid">
+                                <input type="hidden" name="idColeccion" value="${c.id}">
+                                <button type="submit" class="btn btn-outline-secondary btn-sm text-start">
+                                    <i class="bi bi-collection me-2"></i>${c.nombre}
+                                </button>
+                            </form>
+                        `).join('');
+                    }
+                } catch(e) {
+                    lista.innerHTML = '<p class="text-danger small">Error al cargar colecciones.</p>';
+                }
+            });
+        }
 
     script.
 

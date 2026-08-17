@@ -41,13 +41,16 @@ export async function crearPublicacion(req, res) {
         const metadata = await sharp(archivo.buffer).metadata();
         const imgWidth = metadata.width || 800;
 
-        const svgWidth = Math.min(imgWidth, 400);
-        const fontSize = Math.max(14, Math.round(svgWidth / 16));
-        const svgHeight = fontSize + 20;
+        const fontSize = 13;
+        const padding = 8;
+        const texto = `© ${username}`;
+        const svgWidth = texto.length * 7 + padding * 2;
+        const svgHeight = fontSize + padding * 2;
 
         const watermarkSvg = Buffer.from(
           `<svg width="${svgWidth}" height="${svgHeight}" xmlns="http://www.w3.org/2000/svg">` +
-            `<text x="10" y="${fontSize}" font-size="${fontSize}" fill="white" opacity="0.8">© ${username}</text>` +
+            `<rect x="0" y="0" width="${svgWidth}" height="${svgHeight}" fill="black" opacity="0.35" rx="4"/>` +
+            `<text x="${padding}" y="${fontSize + padding - 2}" font-size="${fontSize}" font-family="Arial, sans-serif" fill="white" opacity="0.95">© ${username}</text>` +
             `</svg>`,
         );
 
@@ -182,7 +185,6 @@ export async function crearComentario(req, res) {
       idUsuario: req.session.usuario.id,
     });
 
-    // Notificar al autor de la publicación
     await crearNotificacion(
       imagen.Publicacion.idUsuario,
       req.session.usuario.id,

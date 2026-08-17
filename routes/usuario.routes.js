@@ -33,6 +33,16 @@ import {
   comentarioSchema,
 } from "../schemas/validaciones.js";
 import {
+  mostrarColecciones,
+  verColeccion,
+  crearColeccion,
+  eliminarColeccion,
+  agregarAColeccion,
+  quitarDeColeccion,
+  obtenerColeccionesUsuario,
+} from "../controllers/coleccion.controller.js";
+
+import {
   mostrarNotificaciones,
   marcarNotificacionLeida,
   marcarTodasLeidas,
@@ -95,5 +105,14 @@ usuario.post("/valoraciones/:idImagen", valorarImagen);
 usuario.get("/notificaciones", mostrarNotificaciones);
 usuario.post("/notificaciones/:id/leida", marcarNotificacionLeida);
 usuario.post("/notificaciones/marcar-todas-leidas", marcarTodasLeidas);
+
+// Colecciones
+usuario.get("/colecciones", mostrarColecciones);
+usuario.get("/colecciones/api", obtenerColeccionesUsuario);
+usuario.post("/colecciones/crear", crearColeccion);
+usuario.get("/colecciones/:id", verColeccion);
+usuario.post("/colecciones/:id/eliminar", eliminarColeccion);
+usuario.post("/colecciones/:id/quitar/:idPublicacion", quitarDeColeccion);
+usuario.post("/publicaciones/:idPublicacion/guardar", agregarAColeccion);
 
 export default usuario;

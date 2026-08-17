@@ -1,0 +1,107 @@
+extends ../layout
+
+block content
+
+    .container.mt-4
+
+        .d-flex.align-items-center.gap-3.mb-3
+
+            a.btn.btn-light.btn-sm(href="/usuario/chat")
+                i.bi.bi-arrow-left
+
+            if otroUsuario.avatar
+                img.rounded-circle(
+                    src=otroUsuario.avatar
+                    width="42"
+                    height="42"
+                    style="object-fit:cover"
+                )
+            else
+                .avatar-placeholder.rounded-circle.avatar-sm= otroUsuario.name[0].toUpperCase() + otroUsuario.lastName[0].toUpperCase()
+
+            div
+                strong= otroUsuario.username
+                br
+                small.text-muted
+                    a.text-muted.text-decoration-none(
+                        href=`/usuario/publicaciones/${chat.Interes.Imagen.idPublicacion}`
+                    ) Ver publicación relacionada →
+
+        if chat.Interes && chat.Interes.Imagen && chat.Interes.Imagen.imagenBase64
+
+            .text-center.mb-3
+
+                img.rounded.shadow-sm(
+                    src=chat.Interes.Imagen.imagenBase64
+                    alt="Imagen de interés"
+                    style="max-height:180px; object-fit:cover; max-width:100%"
+                )
+
+                p.text-muted.small.mt-1 Imagen de interés
+
+        hr
+
+        .chat-messages.mb-3(style="max-height: 420px; overflow-y: auto;")
+
+            if !chat.Mensajes.length
+
+                p.text-muted.text-center.small.py-3 Enviá el primer mensaje para iniciar la conversación.
+
+            else
+
+                each msg in chat.Mensajes
+
+                    .d-flex.mb-2(class= msg.esMio ? 'justify-content-end' : 'justify-content-start')
+
+                        .chat-bubble(
+                            class= msg.esMio ? 'chat-bubble-mio' : 'chat-bubble-otro'
+                            style=`max-width:70%`
+                        )
+
+                            p.mb-1= msg.contenido
+
+                            small.d-block(
+                                class= msg.esMio ? 'text-end' : ''
+                                style="font-size:10px; opacity:0.7"
+                            )= new Date(msg.createdAt).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+
+        form(
+            action=`/usuario/chat/${chat.id}/mensaje`
+            method="POST"
+        )
+            .input-group
+
+                input.form-control(
+                    type="text"
+                    name="contenido"
+                    placeholder="Escribí un mensaje..."
+                    autocomplete="off"
+                    maxlength="500"
+                    required
+                )
+
+                button.btn.btn-success(type="submit")
+                    i.bi.bi-send
+
+    style.
+        .chat-bubble {
+            padding: 8px 14px;
+            border-radius: 18px;
+            word-break: break-word;
+        }
+        .chat-bubble-mio {
+            background-color: #636B2F;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        .chat-bubble-otro {
+            background-color: #f0f0f0;
+            color: #333;
+            border-bottom-left-radius: 4px;
+        }
+
+    script.
+        const chatMessages = document.querySelector('.chat-messages');
+        if (chatMessages) {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }

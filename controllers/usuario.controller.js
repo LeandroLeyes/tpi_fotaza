@@ -65,11 +65,39 @@ export async function mostrarHome(req, res) {
         publicaciones = mapearPublicaciones(pubs);
       }
     } else {
-      const pubs = await Publicacion.findAll({
+      const todasLasPubs = await Publicacion.findAll({
         include: [{ model: Imagen, as: "imagenes", include: [Valoracion] }],
         order: [["createdAt", "DESC"]],
       });
-      publicaciones = mapearPublicaciones(pubs);
+
+      const mapeadas = mapearPublicaciones(todasLasPubs);
+
+      const destacadas = mapeadas.filter((pub) => {
+        const totalVotos =
+          pub.imagenes?.reduce(
+            (acc, img) => acc + (img.Valoracions?.length || 0),
+            0,
+          ) || 0;
+        return parseFloat(pub.promedioValoraciones) >= 3.5 && totalVotos >= 3;
+      });
+
+      const normales = mapeadas.filter((pub) => !destacadas.includes(pub));
+
+      const totalMostrar = mapeadas.length;
+      const cantDestacadas = Math.ceil(totalMostrar * 0.7);
+      const cantNormales = totalMostrar - cantDestacadas;
+
+      publicaciones = [
+        ...destacadas.slice(0, cantDestacadas),
+        ...normales.slice(0, cantNormales),
+      ];
+
+      if (publicaciones.length < totalMostrar) {
+        const restantes = mapeadas.filter(
+          (pub) => !publicaciones.includes(pub),
+        );
+        publicaciones = [...publicaciones, ...restantes];
+      }
     }
 
     res.render("usuario/home", {
@@ -132,7 +160,6 @@ export async function seguirUsuario(req, res) {
       return res.redirect(`/usuario/perfil/${req.params.id}`);
     }
 
-    // No se puede seguir a un validador o admin
     const usuarioASeguir = await Usuario.findByPk(idSeguido, {
       include: [{ model: Rol }],
     });
@@ -147,25 +174,24 @@ export async function seguirUsuario(req, res) {
     });
 
     if (!seguimiento) {
-    await Seguimiento.create({ idSeguidor, idSeguido });
+      await Seguimiento.create({ idSeguidor, idSeguido });
 
-    await crearNotificacion(
+      await crearNotificacion(
         idSeguido,
         idSeguidor,
         "seguimiento",
-        `${req.session.usuario.username} comenzó a seguirte`
-    );
+        `${req.session.usuario.username} comenzó a seguirte`,
+      );
+    } else if (seguimiento.deletedAt) {
+      await seguimiento.restore();
 
-} else if (seguimiento.deletedAt) {
-    await seguimiento.restore();
-
-    await crearNotificacion(
+      await crearNotificacion(
         idSeguido,
         idSeguidor,
         "seguimiento",
-        `${req.session.usuario.username} comenzó a seguirte`
-    );
-}
+        `${req.session.usuario.username} comenzó a seguirte`,
+      );
+    }
 
     return res.redirect(`/usuario/perfil/${req.params.id}`);
   } catch (error) {
@@ -196,7 +222,6 @@ export async function renderPerfilUsuario(req, res) {
 
     if (!usuario) return res.redirect("/usuario/home");
 
-    // Ocultar perfiles de validadores y admins a usuarios normales
     const rolUsuario = usuario.Rols?.[0]?.nombre;
     if (rolUsuario === "validador" || rolUsuario === "admin") {
       return res.redirect("/usuario/home");

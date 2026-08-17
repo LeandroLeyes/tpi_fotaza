@@ -1,0 +1,67 @@
+extends ../layout
+
+block content
+
+    .container.mt-4
+
+        .d-flex.justify-content-between.align-items-center.mb-4
+
+            div
+                a.text-muted.small.text-decoration-none(href="/usuario/colecciones")
+                    i.bi.bi-arrow-left.me-1
+                    | Mis colecciones
+                h4.mb-0.mt-1= coleccion.nombre
+
+            form(
+                action=`/usuario/colecciones/${coleccion.id}/eliminar`
+                method="POST"
+                onsubmit="return confirm('¿Eliminar esta colección?')"
+            )
+                button.btn.btn-sm.btn-outline-danger(type="submit")
+                    i.bi.bi-trash3.me-1
+                    | Eliminar colección
+
+        if !publicaciones.length
+
+            .text-center.py-5
+                i.bi.bi-images.fs-1.text-muted
+                p.text-muted.mt-3 Esta colección está vacía.
+                a.btn.btn-outline-success(href="/usuario/home") Ir al inicio a guardar publicaciones
+
+        else
+
+            .public-grid
+
+                each pub in publicaciones
+
+                    .position-relative
+
+                        a.article-card-link(href=`/usuario/publicaciones/${pub.id}`)
+
+                            .article-card
+
+                                if pub.imagenBase64
+                                    img.card-image(
+                                        src=pub.imagenBase64
+                                        alt=pub.titulo
+                                    )
+
+                                .card-overlay
+
+                                    h6.mb-2= pub.titulo
+
+                                    .d-flex.gap-3
+
+                                        span ⭐ #{pub.promedioValoraciones}
+
+                        //- Botón quitar de la colección
+                        form(
+                            action=`/usuario/colecciones/${coleccion.id}/quitar/${pub.id}`
+                            method="POST"
+                            style="position:absolute; top:8px; right:8px;"
+                        )
+                            button.btn.btn-sm.btn-danger(
+                                type="submit"
+                                title="Quitar de la colección"
+                            )
+                                i.bi.bi-x

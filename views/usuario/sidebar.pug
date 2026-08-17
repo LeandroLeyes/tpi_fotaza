@@ -11,7 +11,7 @@
     a.sidebar-link(href="/usuario/home" class= isActive("/usuario/home") ? "active" : "")
       i.bi.bi-house
 
-    a.sidebar-link(href="#" class=isActive("/usuario/coleccion") ? "active" : "")
+    a.sidebar-link(href="/usuario/colecciones" class=isActive("/usuario/colecciones") ? "active" : "")
       i.bi.bi-collection
 
     a.sidebar-link(href="/usuario/publicaciones/crear"  class=isActive("/usuario/publicaciones/crear") ? "active" : "")
@@ -23,7 +23,7 @@
         if hayNotificacionesNoLeidas
             span.notification-dot
 
-    a.sidebar-link(href="#" class=isActive("/usuario/chat") ? "active" : "")
+    a.sidebar-link(href="/usuario/chat" class=isActive("/usuario/chat") ? "active" : "")
       i.bi.bi-chat-dots
 
   .sidebar-bottom
