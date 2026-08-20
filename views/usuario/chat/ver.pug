@@ -4,6 +4,7 @@ block content
 
     .container.mt-4
 
+        //- Header
         .d-flex.align-items-center.gap-3.mb-3
 
             a.btn.btn-light.btn-sm(href="/usuario/chat")
@@ -22,11 +23,13 @@ block content
             div
                 strong= otroUsuario.username
                 br
-                small.text-muted
-                    a.text-muted.text-decoration-none(
-                        href=`/usuario/publicaciones/${chat.Interes.Imagen.idPublicacion}`
-                    ) Ver publicación relacionada →
+                if chat.Interes && chat.Interes.Imagen
+                    small.text-muted
+                        a.text-muted.text-decoration-none(
+                            href=`/usuario/publicaciones/${chat.Interes.Imagen.idPublicacion}`
+                        ) Ver publicación relacionada →
 
+        //- Imagen de interés
         if chat.Interes && chat.Interes.Imagen && chat.Interes.Imagen.imagenBase64
 
             .text-center.mb-3
@@ -41,6 +44,7 @@ block content
 
         hr
 
+        //- Mensajes
         .chat-messages.mb-3(style="max-height: 420px; overflow-y: auto;")
 
             if !chat.Mensajes.length
@@ -65,6 +69,7 @@ block content
                                 style="font-size:10px; opacity:0.7"
                             )= new Date(msg.createdAt).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
 
+        //- Form enviar mensaje
         form(
             action=`/usuario/chat/${chat.id}/mensaje`
             method="POST"
@@ -101,6 +106,7 @@ block content
         }
 
     script.
+        // Auto-scroll al último mensaje
         const chatMessages = document.querySelector('.chat-messages');
         if (chatMessages) {
             chatMessages.scrollTop = chatMessages.scrollHeight;

@@ -9,6 +9,8 @@ import validadorRoutes from "./validador.routes.js";
 import notificacionRoutes from "./notificacion.routes.js";
 import chatRoutes from "./chat.routes.js";
 
+import adminRoutes from "./admin.routes.js";
+
 const router = Router();
 
 router.use("/", landingRoutes);
@@ -19,5 +21,6 @@ router.use("/denuncia", denunciaRoutes);
 router.use("/validador", validadorRoutes);
 router.use("/usuario/notificaciones", notificacionRoutes);
 router.use("/usuario/chat", chatRoutes);
+router.use("/admin", adminRoutes);
 
 export default router;

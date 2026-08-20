@@ -2,6 +2,64 @@ extends layout
 
 block content
 
-  .public-grid
+    .container-fluid.mt-4
 
-    p Vista de Admin
+        h4.mb-4
+            i.bi.bi-shield-lock.me-2
+            | Panel de Administración
+
+        .row.g-3.mb-4
+
+            .col-6.col-md-4.col-lg-2
+
+                .card.border-0.shadow-sm.text-center.py-3
+
+                    i.bi.bi-people.fs-2.text-success
+                    h3.mb-0= stats.totalUsuarios
+                    small.text-muted Usuarios
+
+            .col-6.col-md-4.col-lg-2
+
+                .card.border-0.shadow-sm.text-center.py-3
+
+                    i.bi.bi-shield-check.fs-2.text-warning
+                    h3.mb-0= stats.totalValidadores
+                    small.text-muted Validadores
+
+            .col-6.col-md-4.col-lg-2
+
+                .card.border-0.shadow-sm.text-center.py-3
+
+                    i.bi.bi-images.fs-2.text-primary
+                    h3.mb-0= stats.totalPublicaciones
+                    small.text-muted Publicaciones
+
+            .col-6.col-md-4.col-lg-2
+
+                .card.border-0.shadow-sm.text-center.py-3
+
+                    i.bi.bi-chat-left-text.fs-2.text-info
+                    h3.mb-0= stats.totalComentarios
+                    small.text-muted Comentarios
+
+            .col-6.col-md-4.col-lg-2
+
+                .card.border-0.shadow-sm.text-center.py-3
+
+                    i.bi.bi-image-fill.fs-2.text-danger
+                    h3.mb-0= stats.publicacionesBajadas
+                    small.text-muted Publicaciones bajadas
+
+            .col-6.col-md-4.col-lg-2
+
+                .card.border-0.shadow-sm.text-center.py-3
+
+                    i.bi.bi-person-slash.fs-2.text-danger
+                    h3.mb-0= stats.usuariosBloqueados
+                    small.text-muted Cuentas bloqueadas
+
+        .d-flex.gap-3
+
+            a.btn.btn-success(href="/admin/usuarios")
+                i.bi.bi-people.me-2
+                | Gestionar usuarios

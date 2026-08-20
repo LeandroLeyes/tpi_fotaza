@@ -121,10 +121,12 @@ export async function verChat(req, res) {
         { model: Usuario, as: "destino" },
         {
           model: Interes,
+          required: false,
           include: [
             {
               model: Imagen,
-              include: [{ model: Publicacion }],
+              required: false,
+              include: [{ model: Publicacion, required: false }],
             },
           ],
         },
@@ -149,7 +151,7 @@ export async function verChat(req, res) {
     if (json.destino?.avatar)
       json.destino.avatar = blobABase64(json.destino.avatar);
 
-    json.Mensajes = json.Mensajes.map((m) => ({
+    json.Mensajes = (json.Mensajes || []).map((m) => ({
       ...m,
       esMio: m.idUsuario === idUsuario,
       Usuario: {

@@ -4,23 +4,17 @@
 
     a.logo(href="/")
 
-      img(src="/images/fotaza-logo-1.png" width = "50px")
+      img(src="/images/fotaza-logo-1.png" width="50px")
 
   .sidebar-menu
 
-    a.sidebar-link.active(href="/")
-      i.bi.bi-house-fill
+    a.sidebar-link(href="/admin/home" class=isActive("/admin/home") ? "active" : "")
+      i.bi.bi-house
 
-    a.sidebar-link(href="#")
-      i.bi.bi-exclamation-circle
-
-    a.sidebar-link(href="#")
+    a.sidebar-link(href="/admin/usuarios" class=isActive("/admin/usuarios") ? "active" : "")
       i.bi.bi-people
-
-    a.sidebar-link(href="#")
-      i.bi.bi-person-slash  
 
   .sidebar-bottom
 
-    a.sidebar-link(href="#")
-      i.bi.bi-gear
+    a.sidebar-link(href="/auth/logout")
+      i.bi.bi-box-arrow-left
