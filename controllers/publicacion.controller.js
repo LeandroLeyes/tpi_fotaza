@@ -244,7 +244,7 @@ export async function valorarImagen(req, res) {
         imagen.Publicacion.idUsuario,
         usuario.id,
         "valoracion",
-        `${usuario.username} valoró una de tus imágenes con ${puntaje} ⭐`,
+        `${usuario.username} valoró una de tus imágenes con ${puntaje} ★`,
         imagen.Publicacion.id,
       );
     }

@@ -3,95 +3,90 @@ extends layout
 block content
     .container-fluid.mt-4
         .d-flex.justify-content-between.align-items-center.mb-4
-            h2
+            h4.mb-0
                 i.bi.bi-bell.me-2
                 | Notificaciones
+                if noLeidas > 0
+                    span.badge.bg-danger.ms-2= noLeidas
 
             if notificaciones && notificaciones.length
-                form(
-                    action="/usuario/notificaciones/marcar-todas-leidas"
-                    method="POST"
-                )
-                    button.btn.btn-outline-success(type="submit")
-                        i.bi.bi-check2-all.me-1
-                        | Marcar todas como leídas
+                .d-flex.gap-2
+                    if noLeidas > 0
+                        form(action="/usuario/notificaciones/marcar-todas-leidas" method="POST")
+                            button.btn.btn-sm.btn-outline-success(type="submit")
+                                i.bi.bi-check2-all.me-1
+                                | Marcar todas como leídas
+
+                    button.btn.btn-sm.btn-outline-danger(type="button" data-bs-toggle="modal" data-bs-target="#modalLimpiar")
+                        i.bi.bi-trash3.me-1
+                        | Limpiar bandeja
 
         if notificaciones && notificaciones.length
             .list-group.shadow-sm
-
                 each notif in notificaciones
-
                     - const url = (notif.tipo === 'seguimiento' || !notif.idReferencia) ? null : `/usuario/publicaciones/${notif.idReferencia}`
 
-                    .list-group-item.list-group-item-action(
-                        class=notif.leida ? "" : "list-group-item-light fw-bold"
-                        style="cursor: default;"
-                    )
+                    .list-group-item(class= notif.leida ? '' : 'border-start border-3 border-success')
                         .d-flex.justify-content-between.align-items-center.gap-3
-
                             if url
-                                a.d-flex.align-items-center.gap-3.text-decoration-none.text-dark.flex-grow-1(
-                                    href=url
-                                )
-                                    if notif.origen
-                                        if notif.origen.avatar
-                                            img.rounded-circle(
-                                                src=notif.origen.avatar
-                                                width="45"
-                                                height="45"
-                                                style="object-fit: cover; flex-shrink:0"
-                                            )
-                                        else
-                                            .rounded-circle.bg-success.text-white.d-flex.align-items-center.justify-content-center(
-                                                style="width:45px;height:45px;flex-shrink:0"
-                                            )
-                                                = notif.origen.username[0].toUpperCase()
-                                    .notification-content
-                                        p.mb-1= notif.mensaje
-                                        small.text-muted= new Date(notif.createdAt).toLocaleString("es-AR")
-                                        if notif.tipo === 'comentario'
-                                            span.badge.bg-secondary.ms-2 💬 Ver publicación
-                                        else if notif.tipo === 'valoracion'
-                                            span.badge.bg-secondary.ms-2 ⭐ Ver publicación
-                                        else if notif.tipo === 'interes'
-                                            span.badge.bg-secondary.ms-2 🖼 Ver publicación
+                                a.d-flex.align-items-center.gap-3.text-decoration-none.text-dark.flex-grow-1(href=url)
+                                    +avatarNotif(notif)
+                                    +contenidoNotif(notif)
                             else
                                 .d-flex.align-items-center.gap-3.flex-grow-1
-
-                                    if notif.origen
-                                        if notif.origen.avatar
-                                            img.rounded-circle(
-                                                src=notif.origen.avatar
-                                                width="45"
-                                                height="45"
-                                                style="object-fit: cover;"
-                                            )
-                                        else
-                                            .rounded-circle.bg-success.text-white.d-flex.align-items-center.justify-content-center(
-                                                style="width:45px;height:45px;flex-shrink:0"
-                                            )
-                                                = notif.origen.username[0].toUpperCase()
-
-                                    .notification-content
-                                        p.mb-1= notif.mensaje
-                                        small.text-muted= new Date(notif.createdAt).toLocaleString("es-AR")
+                                    +avatarNotif(notif)
+                                    +contenidoNotif(notif)
 
                             if !notif.leida
-                                form(
-                                    action=`/usuario/notificaciones/${notif.id}/leida`
-                                    method="POST"
-                                )
-                                    button.btn.btn-sm.btn-outline-secondary(
-                                        type="submit"
-                                        title="Marcar como leída"
-                                    )
+                                form(action=`/usuario/notificaciones/${notif.id}/leida` method="POST")
+                                    button.btn.btn-sm.btn-outline-secondary(type="submit" title="Marcar como leída")
                                         i.bi.bi-check2
-                                        |  Leída
-
         else
-            .card.shadow-sm
-                .card-body.text-center.py-5
-                    i.bi.bi-bell-slash.fs-1.text-muted
-                    h4.mt-3 No tenés notificaciones
-                    p.text-muted.mb-0
-                        | Cuando alguien interactúe con vos, aparecerán acá.
+            .text-center.py-5
+                i.bi.bi-bell-slash.fs-1.text-muted
+                p.text-muted.mt-3 No tenés notificaciones todavía.
+
+    #modalLimpiar.modal.fade(tabindex="-1" aria-labelledby="modalLimpiarLabel" aria-hidden="true")
+        .modal-dialog.modal-dialog-centered
+            .modal-content
+                .modal-header.border-0
+                    h5.modal-title#modalLimpiarLabel Limpiar notificaciones
+                    button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Cerrar")
+                
+                .modal-body
+                    p ¿Estás seguro que querés limpiar tu bandeja de notificaciones?
+                
+                .modal-footer.border-0
+                    button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+                    form(action="/usuario/notificaciones/limpiar" method="POST")
+                        button.btn.btn-danger(type="submit") Sí, limpiar
+
+
+mixin avatarNotif(notif)
+    if notif.origen
+        if notif.origen.avatar
+            img.rounded-circle(src=notif.origen.avatar width="45" height="45" style="object-fit:cover; flex-shrink:0")
+        else
+            .avatar-placeholder.rounded-circle.avatar-sm.flex-shrink-0= notif.origen.name[0].toUpperCase() + notif.origen.lastName[0].toUpperCase()
+    else
+        .avatar-placeholder.rounded-circle.avatar-sm.flex-shrink-0
+            i.bi.bi-person
+
+mixin contenidoNotif(notif)
+    div
+        p.mb-0.small= notif.mensaje
+        p.mb-0.text-muted(style="font-size:11px")
+            i.bi.bi-clock.me-1
+            = new Date(notif.createdAt).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+        if notif.tipo === 'comentario'
+            span.badge.bg-secondary.mt-1 
+                i.bi.bi-chat-text.me-1
+                | Ver publicación
+        else if notif.tipo === 'valoracion'
+            span.badge.bg-secondary.mt-1 
+                i.bi.bi-star-fill.me-1
+                | Ver publicación
+        else if notif.tipo === 'interes'
+            span.badge.bg-secondary.mt-1 
+                i.bi.bi-image.me-1
+                | Ver publicación

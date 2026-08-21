@@ -1,27 +1,37 @@
 import { Notificacion } from "../models/notificacion.js";
 import { Usuario } from "../models/usuario.js";
+import blobABase64 from "../helpers/blobAbase64.js";
 
 export async function mostrarNotificaciones(req, res) {
   try {
     const idUsuario = req.session.usuario.id;
 
     const notificaciones = await Notificacion.findAll({
-      where: {
-        idUsuarioDestino: idUsuario,
-      },
+      where: { idUsuarioDestino: idUsuario },
       include: [
         {
           model: Usuario,
           as: "origen",
-          attributes: ["id", "username", "avatar"],
+          attributes: ["id", "username", "name", "lastName", "avatar"],
         },
       ],
       order: [["createdAt", "DESC"]],
     });
 
+    const nots = notificaciones.map((n) => {
+      const json = n.toJSON();
+      if (json.origen?.avatar) {
+        json.origen.avatar = blobABase64(json.origen.avatar);
+      }
+      return json;
+    });
+
+    const noLeidas = nots.filter((n) => !n.leida).length;
+
     res.render("usuario/notificaciones", {
       title: "Notificaciones",
-      notificaciones,
+      notificaciones: nots,
+      noLeidas,
     });
   } catch (error) {
     console.error("Error al cargar notificaciones:", error);
@@ -31,21 +41,15 @@ export async function mostrarNotificaciones(req, res) {
 
 export async function marcarNotificacionLeida(req, res) {
   try {
-    const idUsuario = req.session.usuario.id;
-    const idNotificacion = req.params.id;
-
     await Notificacion.update(
-      {
-        leida: true,
-      },
+      { leida: true },
       {
         where: {
-          id: idNotificacion,
-          idUsuarioDestino: idUsuario,
+          id: req.params.id,
+          idUsuarioDestino: req.session.usuario.id,
         },
       },
     );
-
     return res.redirect("/usuario/notificaciones");
   } catch (error) {
     console.error("Error al marcar notificación:", error);
@@ -55,23 +59,30 @@ export async function marcarNotificacionLeida(req, res) {
 
 export async function marcarTodasLeidas(req, res) {
   try {
-    const idUsuario = req.session.usuario.id;
-
     await Notificacion.update(
-      {
-        leida: true,
-      },
+      { leida: true },
       {
         where: {
-          idUsuarioDestino: idUsuario,
+          idUsuarioDestino: req.session.usuario.id,
           leida: false,
         },
       },
     );
-
     return res.redirect("/usuario/notificaciones");
   } catch (error) {
     console.error("Error al marcar todas las notificaciones:", error);
+    res.redirect("/usuario/notificaciones");
+  }
+}
+
+export async function limpiarNotificaciones(req, res) {
+  try {
+    await Notificacion.destroy({
+      where: { idUsuarioDestino: req.session.usuario.id },
+    });
+    return res.redirect("/usuario/notificaciones");
+  } catch (error) {
+    console.error("Error al limpiar notificaciones:", error);
     res.redirect("/usuario/notificaciones");
   }
 }

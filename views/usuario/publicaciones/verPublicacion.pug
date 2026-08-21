@@ -76,55 +76,55 @@ block content
                                         aria-expanded="false"
                                     ) ⋮
 
-                                ul.dropdown-menu.dropdown-menu-end
+                                    ul.dropdown-menu.dropdown-menu-end
 
-                                    if esPropietario
+                                        if esPropietario
 
-                                        li
+                                            li
 
-                                            form(
-                                                action=`/usuario/publicaciones/${publicacion.id}/comentarios`
-                                                method="POST"
-                                            )
+                                                form(
+                                                    action=`/usuario/publicaciones/${publicacion.id}/comentarios`
+                                                    method="POST"
+                                                )
 
-                                                if publicacion.comentariosActivo
+                                                    if publicacion.comentariosActivo
 
-                                                    button.dropdown-item(type="submit")
-                                                        | Cerrar comentarios
+                                                        button.dropdown-item(type="submit")
+                                                            | Cerrar comentarios
 
-                                                else
+                                                    else
 
-                                                    button.dropdown-item(type="submit")
-                                                        | Abrir comentarios
+                                                        button.dropdown-item(type="submit")
+                                                            | Abrir comentarios
 
-                                        li
+                                            li
 
-                                            a.dropdown-item(
-                                                href=`/usuario/publicaciones/${publicacion.id}/editar`
-                                            )
-                                                | Editar publicación
+                                                a.dropdown-item(
+                                                    href=`/usuario/publicaciones/${publicacion.id}/editar`
+                                                )
+                                                    | Editar publicación
 
-                                        li
-                                            hr.dropdown-divider
+                                            li
+                                                hr.dropdown-divider
 
-                                        li
+                                            li
 
-                                            button.dropdown-item.text-danger(
-                                                type="button"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#modalEliminarPublicacion"
-                                            )
-                                                | Eliminar publicación
+                                                button.dropdown-item.text-danger(
+                                                    type="button"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#modalEliminarPublicacion"
+                                                )
+                                                    | Eliminar publicación
 
-                                    else
+                                        else
 
-                                        li
+                                            li
 
-                                            a.dropdown-item(
-                                                href=`/denuncia/publicacion/${publicacion.id}`
-                                            )
-                                                i.bi.bi-flag.me-2.text-danger
-                                                | Denunciar publicación
+                                                a.dropdown-item(
+                                                    href=`/denuncia/publicacion/${publicacion.id}`
+                                                )
+                                                    i.bi.bi-flag.me-2.text-danger
+                                                    | Denunciar publicación
 
                         p.text-muted.mb-3= publicacion.descripcion
 
