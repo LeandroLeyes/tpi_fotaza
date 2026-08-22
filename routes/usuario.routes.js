@@ -46,6 +46,7 @@ import {
   mostrarNotificaciones,
   marcarNotificacionLeida,
   marcarTodasLeidas,
+  verNotificacion,
 } from "../controllers/notificacion.controller.js";
 
 const usuario = Router();
@@ -103,6 +104,7 @@ usuario.post("/valoraciones/:idImagen", valorarImagen);
 
 // Notificaciones
 usuario.get("/notificaciones", mostrarNotificaciones);
+usuario.get("/notificaciones/:id/ver", verNotificacion);
 usuario.post("/notificaciones/:id/leida", marcarNotificacionLeida);
 usuario.post("/notificaciones/marcar-todas-leidas", marcarTodasLeidas);
 

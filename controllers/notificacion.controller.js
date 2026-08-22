@@ -1,5 +1,6 @@
 import { Notificacion } from "../models/notificacion.js";
 import { Usuario } from "../models/usuario.js";
+import { Publicacion } from "../models/publicacion.js";
 import blobABase64 from "../helpers/blobAbase64.js";
 
 export async function mostrarNotificaciones(req, res) {
@@ -54,6 +55,48 @@ export async function marcarNotificacionLeida(req, res) {
   } catch (error) {
     console.error("Error al marcar notificación:", error);
     res.redirect("/usuario/notificaciones");
+  }
+}
+
+export async function verNotificacion(req, res) {
+  try {
+    const idUsuario = req.session.usuario.id;
+    const idNotificacion = req.params.id;
+
+    const notificacion = await Notificacion.findOne({
+      where: {
+        id: idNotificacion,
+        idUsuarioDestino: idUsuario,
+      },
+    });
+
+    if (!notificacion) {
+      return res.redirect("/usuario/notificaciones");
+    }
+
+    await notificacion.update({
+      leida: true,
+    });
+
+    const tiposNavegables = ["comentario", "valoracion", "interes"];
+
+    if (
+      tiposNavegables.includes(notificacion.tipo) &&
+      notificacion.idReferencia
+    ) {
+      const publicacion = await Publicacion.findByPk(notificacion.idReferencia);
+
+      if (publicacion) {
+        return res.redirect(
+          `/usuario/publicaciones/${notificacion.idReferencia}`,
+        );
+      }
+    }
+
+    return res.redirect("/usuario/notificaciones");
+  } catch (error) {
+    console.error("Error al abrir notificación:", error);
+    return res.redirect("/usuario/notificaciones");
   }
 }
 

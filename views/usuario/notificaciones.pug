@@ -24,7 +24,8 @@ block content
         if notificaciones && notificaciones.length
             .list-group.shadow-sm
                 each notif in notificaciones
-                    - const url = (notif.tipo === 'seguimiento' || !notif.idReferencia) ? null : `/usuario/publicaciones/${notif.idReferencia}`
+                    - const navegable = ['comentario', 'valoracion', 'interes'].includes(notif.tipo) && notif.idReferencia
+                    - const url = navegable ? `/usuario/notificaciones/${notif.id}/ver` : null
 
                     .list-group-item(class= notif.leida ? '' : 'border-start border-3 border-success')
                         .d-flex.justify-content-between.align-items-center.gap-3

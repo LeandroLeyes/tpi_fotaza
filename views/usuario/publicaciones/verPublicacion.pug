@@ -361,10 +361,13 @@ block content
 
                             button.btn.btn-danger(type="submit") Si, eliminar
 
-    //- Modal guardar en colección
     if !esPropietario
 
-        #modalGuardarColeccion.modal.fade(tabindex="-1" aria-hidden="true")
+        #modalGuardarColeccion.modal.fade(
+            tabindex="-1" 
+            aria-hidden="true"
+            data-id-publicacion=publicacion.id
+            )
 
             .modal-dialog.modal-dialog-centered
 
@@ -403,34 +406,14 @@ block content
                                     maxlength="50"
                                     required
                                 )
+                                input(
+                                    type="hidden"
+                                    name="idPublicacion"
+                                    value=publicacion.id
+                                    )
                                 button.btn.btn-sm.btn-success(type="submit") Crear
 
-    script.
-
-        const modalGuardar = document.getElementById('modalGuardarColeccion');
-        if (modalGuardar) {
-            modalGuardar.addEventListener('show.bs.modal', async () => {
-                const lista = document.getElementById('coleccionesLista');
-                try {
-                    const res = await fetch('/usuario/colecciones/api');
-                    const colecciones = await res.json();
-                    if (colecciones.length === 0) {
-                        lista.innerHTML = '<p class="text-muted text-center small">No tenés colecciones. Creá una abajo.</p>';
-                    } else {
-                        lista.innerHTML = colecciones.map(c => `
-                            <form action="/usuario/publicaciones/${publicacion.id}/guardar" method="POST" class="d-grid">
-                                <input type="hidden" name="idColeccion" value="${c.id}">
-                                <button type="submit" class="btn btn-outline-secondary btn-sm text-start">
-                                    <i class="bi bi-collection me-2"></i>${c.nombre}
-                                </button>
-                            </form>
-                        `).join('');
-                    }
-                } catch(e) {
-                    lista.innerHTML = '<p class="text-danger small">Error al cargar colecciones.</p>';
-                }
-            });
-        }
+    script(src="/js/colecciones.js")
 
     script.
 

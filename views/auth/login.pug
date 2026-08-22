@@ -1,25 +1,18 @@
 extends layout
 
 block content
-
   .auth-container
-
     .auth-card
-
       .text-center.mb-4
-
         a(href="/")
           img(src="/images/fotaza-logo-1.png" width="50px")
-
         h2.mt-3 Bienvenido
-
         p.text-muted Inicia sesión en Fotaza
 
       include ../partials/alert
       +alert(errores && errores.general ? { status: 'error', text: errores.general } : undefined)
 
       form(action="/auth/login", method="post", novalidate)
-
         .mb-3
           input.form-control.auth-input(
             type="email",
@@ -32,17 +25,23 @@ block content
             .invalid-feedback #{errores.email}
 
         .mb-4
-          input.form-control.auth-input(
-            type="password",
-            name="password",
-            placeholder="Contraseña",
-            class= errores && errores.password ? 'is-invalid' : ''
-          )
+          .input-group
+            input.form-control.auth-input#password(
+              type="password",
+              name="password",
+              placeholder="Contraseña",
+              class= errores && errores.password ? 'is-invalid' : ''
+            )
+            button.btn.btn-outline-secondary.auth-input(type="button", onclick="verPassword()")
+              i.bi.bi-eye-slash#toggleIcon
+          
           if errores && errores.password
-            .invalid-feedback #{errores.password}
+            .invalid-feedback.d-block #{errores.password}
 
         button.btn.auth-btn.w-100(type="submit") Iniciar sesión
 
       .text-center.mt-4
         span.text-muted ¿No tienes cuenta?
         a.ms-2.auth-link(href="/auth/register") Regístrate
+
+      script(src="/js/password.js")
