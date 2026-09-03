@@ -1,6 +1,4 @@
 import { Usuario } from "../models/usuario.js";
-import { Publicacion } from "../models/publicacion.js";
-import { Comentario } from "../models/comentario.js";
 import { Rol } from "../models/rol.js";
 import { UsuariosRoles } from "../models/usuariosRoles.js";
 import { Op } from "sequelize";
@@ -8,23 +6,6 @@ import blobABase64 from "../helpers/blobAbase64.js";
 
 export async function mostrarHomeAdmin(req, res) {
   try {
-    const [
-      totalUsuarios,
-      totalPublicaciones,
-      totalComentarios,
-      usuariosBloqueados,
-      publicacionesBajadas,
-    ] = await Promise.all([
-      Usuario.count(),
-      Publicacion.count(),
-      Comentario.count(),
-      Usuario.count({ where: { deletedAt: { [Op.ne]: null } } }),
-      Publicacion.count({
-        where: { deletedAt: { [Op.ne]: null } },
-        paranoid: false,
-      }),
-    ]);
-
     const rolValidador = await Rol.findOne({ where: { nombre: "validador" } });
     const totalValidadores = rolValidador
       ? await UsuariosRoles.count({ where: { idRol: rolValidador.id } })
@@ -33,11 +14,6 @@ export async function mostrarHomeAdmin(req, res) {
     res.render("admin/home", {
       title: "Panel Admin",
       stats: {
-        totalUsuarios,
-        totalPublicaciones,
-        totalComentarios,
-        usuariosBloqueados,
-        publicacionesBajadas,
         totalValidadores,
       },
     });
@@ -49,50 +25,56 @@ export async function mostrarHomeAdmin(req, res) {
 
 export async function listarUsuarios(req, res) {
   try {
-    const usuarios = await Usuario.findAll({
-      include: [{ model: Rol }],
+    const validadores = await Usuario.findAll({
+      include: [
+        {
+          model: Rol,
+          where: { nombre: "validador" },
+        },
+      ],
       order: [["createdAt", "DESC"]],
       paranoid: false,
     });
 
-    const usuariosFormateados = usuarios.map((u) => ({
+    const usuariosFormateados = validadores.map((u) => ({
       ...u.toJSON(),
       avatar: blobABase64(u.avatar),
       rol: u.Rols?.[0]?.nombre || "usuario",
     }));
 
     res.render("admin/usuarios", {
-      title: "Gestión de usuarios",
+      title: "Gestión de Validadores",
       usuarios: usuariosFormateados,
     });
   } catch (error) {
-    console.error("Error al listar usuarios:", error);
+    console.error("Error al listar validadores:", error);
     res.redirect("/admin/home");
   }
 }
 
-export async function asignarValidador(req, res) {
+export async function crearValidador(req, res) {
   try {
-    const usuario = await Usuario.findByPk(req.params.id, {
-      include: [{ model: Rol }],
-    });
-
-    if (!usuario) return res.redirect("/admin/usuarios");
+    const { name, lastName, username, email, password } = req.body;
 
     const rolValidador = await Rol.findOne({ where: { nombre: "validador" } });
-    const rolUsuario = await Rol.findOne({ where: { nombre: "usuario" } });
-
     if (!rolValidador) return res.redirect("/admin/usuarios");
 
-    await UsuariosRoles.destroy({ where: { idUsuario: usuario.id } });
+    const nuevoUsuario = await Usuario.create({
+      name,
+      lastName,
+      username,
+      email,
+      password,
+    });
+
     await UsuariosRoles.create({
-      idUsuario: usuario.id,
+      idUsuario: nuevoUsuario.id,
       idRol: rolValidador.id,
     });
 
     return res.redirect("/admin/usuarios");
   } catch (error) {
-    console.error("Error al asignar validador:", error);
+    console.error("Error al crear validador:", error);
     res.redirect("/admin/usuarios");
   }
 }
@@ -100,7 +82,6 @@ export async function asignarValidador(req, res) {
 export async function quitarValidador(req, res) {
   try {
     const rolUsuario = await Rol.findOne({ where: { nombre: "usuario" } });
-
     if (!rolUsuario) return res.redirect("/admin/usuarios");
 
     await UsuariosRoles.destroy({ where: { idUsuario: req.params.id } });
@@ -118,9 +99,21 @@ export async function quitarValidador(req, res) {
 
 export async function toggleCuenta(req, res) {
   try {
-    const usuario = await Usuario.findByPk(req.params.id, { paranoid: false });
+    const usuario = await Usuario.findByPk(req.params.id, {
+      include: [{ model: Rol }],
+      paranoid: false,
+    });
 
     if (!usuario) return res.redirect("/admin/usuarios");
+
+    const esValidador = usuario.Rols?.some((rol) => rol.nombre === "validador");
+
+    if (!esValidador) {
+      console.warn(
+        `Alerta de seguridad: Intento de modificar estado de un usuario estándar. ID: ${usuario.id}`,
+      );
+      return res.redirect("/admin/usuarios");
+    }
 
     await usuario.update({ activo: !usuario.activo });
 

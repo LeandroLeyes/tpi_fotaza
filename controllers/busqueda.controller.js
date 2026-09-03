@@ -6,20 +6,33 @@ import { Publicacion } from "../models/publicacion.js";
 import { Imagen } from "../models/imagen.js";
 import { Comentario } from "../models/comentario.js";
 import { Valoracion } from "../models/valoracion.js";
+import { Rol } from "../models/rol.js";
+import { UsuariosRoles } from "../models/usuariosRoles.js";
 import blobABase64 from "../helpers/blobAbase64.js";
 
 export async function buscarContenido(req, res) {
   try {
     const termino = req.query.q?.trim();
-
     const filtro = req.query.filtro || "todo";
 
     if (!termino) {
       return res.redirect("/usuario/home");
     }
 
+    const rolUsuarioComun = await Rol.findOne({ where: { nombre: "usuario" } });
+
+    let usuariosIdsValidos = [];
+    if (rolUsuarioComun) {
+      const relaciones = await UsuariosRoles.findAll({
+        where: { idRol: rolUsuarioComun.id },
+        attributes: ["idUsuario"],
+      });
+      usuariosIdsValidos = relaciones.map((r) => r.idUsuario);
+    }
+
     const usuarios = await Usuario.findAll({
       where: {
+        id: { [Op.in]: usuariosIdsValidos },
         username: {
           [Op.iLike]: `%${termino}%`,
         },
@@ -89,9 +102,7 @@ export async function buscarContenido(req, res) {
 
       return {
         ...pub,
-
         imagenBase64: imagen ? blobABase64(imagen.url) : null,
-
         promedioValoraciones,
         cantidadComentarios,
       };
