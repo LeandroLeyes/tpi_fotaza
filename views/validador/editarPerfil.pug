@@ -20,6 +20,7 @@ block content
                             action="/validador/perfil/editar"
                             method="POST"
                             enctype="multipart/form-data"
+                            novalidate 
                         )
 
                             .text-center.mb-4
@@ -89,16 +90,6 @@ block content
                                 )
                                 if errores && errores.email
                                     .invalid-feedback #{errores.email}
-
-                            .mb-4
-                                label.form-label Bio
-                                textarea.form-control(
-                                    name="bio"
-                                    rows="3"
-                                    class= errores && errores.bio ? 'is-invalid' : ''
-                                )= formValues ? formValues.bio : perfilUsuario.bio
-                                if errores && errores.bio
-                                    .invalid-feedback #{errores.bio}
 
                             .d-flex.gap-2
                                 button.btn.btn-success(type="submit") Guardar cambios

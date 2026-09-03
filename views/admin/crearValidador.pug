@@ -1,0 +1,89 @@
+extends layout
+
+block content
+    .container-fluid.mt-4
+        .d-flex.justify-content-between.align-items-center.mb-4
+            h4.mb-0
+                i.bi.bi-person-plus.me-2
+                | Nuevo Validador
+            a.btn.btn-outline-secondary.btn-sm(href="/admin/validadores")
+                i.bi.bi-arrow-left.me-1
+                | Volver a la lista
+
+        .row.justify-content-center
+            .col-lg-8
+                .card.border-0.shadow-sm
+                    .card-body.p-4
+                        include ../partials/alert
+                        +alert(errores && errores.general ? { status: 'error', text: errores.general } : undefined)
+
+                        form.row.g-3(action="/admin/usuarios/crear" method="POST" novalidate)
+
+                            .col-md-6
+                                label.form-label Nombre
+                                input.form-control(
+                                    type="text" 
+                                    name="name" 
+                                    value=formValues && formValues.name
+                                    class= errores && errores.name ? 'is-invalid' : ''
+                                )
+                                if errores && errores.name
+                                    .invalid-feedback #{errores.name}
+                                    
+                            .col-md-6
+                                label.form-label Apellido
+                                input.form-control(
+                                    type="text" 
+                                    name="lastName" 
+                                    value=formValues && formValues.lastName
+                                    class= errores && errores.lastName ? 'is-invalid' : ''
+                                )
+                                if errores && errores.lastName
+                                    .invalid-feedback #{errores.lastName}
+                                    
+                            .col-md-12
+                                label.form-label Nombre de usuario
+                                input.form-control(
+                                    type="text" 
+                                    name="username" 
+                                    placeholder="ej: validador_soporte"
+                                    value=formValues && formValues.username
+                                    class= errores && errores.username ? 'is-invalid' : ''
+                                )
+                                if errores && errores.username
+                                    .invalid-feedback #{errores.username}
+                                    
+                            .col-md-12
+                                label.form-label Email corporativo
+                                input.form-control(
+                                    type="text" 
+                                    name="email" 
+                                    value=formValues && formValues.email
+                                    class= errores && errores.email ? 'is-invalid' : ''
+                                )
+                                if errores && errores.email
+                                    .invalid-feedback #{errores.email}
+                                    
+                            .col-md-6
+                                label.form-label Contraseña
+                                input.form-control(
+                                    type="password" 
+                                    name="password"
+                                    class= errores && errores.password ? 'is-invalid' : ''
+                                )
+                                if errores && errores.password
+                                    .invalid-feedback #{errores.password}
+                                    
+                            .col-md-6
+                                label.form-label Confirmar Contraseña
+                                input.form-control(
+                                    type="password" 
+                                    name="confirmPassword"
+                                    class= errores && errores.confirmPassword ? 'is-invalid' : ''
+                                )
+                                if errores && errores.confirmPassword
+                                    .invalid-feedback #{errores.confirmPassword}
+                                    
+                            .col-12.mt-4.d-flex.justify-content-end.gap-2
+                                a.btn.btn-light(href="/admin/usuarios") Cancelar
+                                button.btn.btn-success(type="submit") Crear cuenta

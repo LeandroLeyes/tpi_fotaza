@@ -4,30 +4,16 @@ block content
     .container-fluid.mt-4
 
         .d-flex.justify-content-between.align-items-center.mb-4
-            h4.mb-0
-                i.bi.bi-shield-lock.me-2
-                | Gestión de Validadores
-            a.btn.btn-outline-secondary.btn-sm(href="/admin/home")
-                i.bi.bi-arrow-left.me-1
-                | Volver
-
-        .card.border-0.shadow-sm.mb-4
-            .card-body
-                h6.card-title.mb-3 Crear nueva cuenta de Validador
-                form.row.g-2(action="/admin/usuarios/crear" method="POST")
-                    .col-md-2
-                        input.form-control(type="text" name="name" placeholder="Nombre" required)
-                    .col-md-2
-                        input.form-control(type="text" name="lastName" placeholder="Apellido" required)
-                    .col-md-2
-                        input.form-control(type="text" name="username" placeholder="Usr (ej: validador1)" required)
-                    .col-md-3
-                        input.form-control(type="email" name="email" placeholder="Email genérico" required)
-                    .col-md-2
-                        input.form-control(type="password" name="password" placeholder="Contraseña" required)
-                    .col-md-1
-                        button.btn.btn-success.w-100(type="submit" title="Crear Validador")
-                            i.bi.bi-plus-lg
+                    h4.mb-0
+                        i.bi.bi-shield-lock.me-2
+                        | Gestión de Validadores
+                    div
+                        a.btn.btn-success.btn-sm.me-2(href="/admin/usuarios/crear")
+                            i.bi.bi-plus-lg.me-1
+                            | Nuevo Validador
+                        a.btn.btn-outline-secondary.btn-sm(href="/admin/home")
+                            i.bi.bi-arrow-left.me-1
+                            | Volver
 
         .card.border-0.shadow-sm
             .card-body.p-0
@@ -57,12 +43,13 @@ block content
                                             else
                                                 span.badge.bg-danger Bloqueado
                                         td
-                                            .d-flex.gap-1.justify-content-end
-                                                form(action=`/admin/usuarios/${u.id}/quitar-validador` method="POST")
-                                                    button.btn.btn-sm.btn-outline-warning(type="submit" title="Quitar rol de validador")
-                                                        i.bi.bi-shield-x
-                                                form(action=`/admin/usuarios/${u.id}/toggle` method="POST")
-                                                    button.btn.btn-sm(class= u.activo ? 'btn-outline-danger' : 'btn-outline-success' type="submit" title= u.activo ? 'Bloquear cuenta' : 'Activar cuenta')
+                                            .d-flex.gap-1.justify-content-end                                              
+                                                form(action=`/admin/validadores/${u.id}/eliminar` method="POST" onsubmit="return confirm('¿Estás seguro de eliminar este validador de forma permanente?');")
+                                                    button.btn.btn-sm.btn-outline-danger(type="submit" title="Eliminar validador")
+                                                        i.bi.bi-trash
+
+                                                form(action=`/admin/validadores/${u.id}/toggle` method="POST")
+                                                    button.btn.btn-sm(class= u.activo ? 'btn-outline-warning' : 'btn-outline-success' type="submit" title= u.activo ? 'Bloquear cuenta' : 'Activar cuenta')
                                                         i.bi(class= u.activo ? 'bi-person-slash' : 'bi-person-check')
                             else
                                 tr

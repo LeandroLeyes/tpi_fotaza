@@ -1,8 +1,53 @@
 import { Usuario } from "../models/usuario.js";
 import { Rol } from "../models/rol.js";
 import { UsuariosRoles } from "../models/usuariosRoles.js";
-import { Op } from "sequelize";
 import blobABase64 from "../helpers/blobAbase64.js";
+
+export function mostrarFormularioCrear(req, res) {
+  res.render("admin/crearValidador", {
+    title: "Crear Validador",
+  });
+}
+
+export async function crearValidador(req, res) {
+  try {
+    const { name, lastName, username, email, password } = req.datosValidados;
+
+    const [usernameExistente, emailExistente] = await Promise.all([
+      Usuario.findOne({ where: { username } }),
+      Usuario.findOne({ where: { email } }),
+    ]);
+
+    if (usernameExistente || emailExistente) {
+      return res.status(400).render("admin/crearValidador", {
+        title: "Crear Validador",
+        errores: {
+          username: usernameExistente ? "Usuario en uso" : undefined,
+          email: emailExistente ? "Email registrado" : undefined,
+        },
+        formValues: req.body,
+      });
+    }
+
+    const rolValidador = await Rol.findOne({ where: { nombre: "validador" } });
+    const nuevoUsuario = await Usuario.create({
+      name,
+      lastName,
+      username,
+      email,
+      password,
+    });
+    await UsuariosRoles.create({
+      idUsuario: nuevoUsuario.id,
+      idRol: rolValidador.id,
+    });
+
+    return res.redirect("/admin/usuarios");
+  } catch (error) {
+    console.error("Error al crear validador:", error);
+    res.redirect("/admin/usuarios");
+  }
+}
 
 export async function mostrarHomeAdmin(req, res) {
   try {
@@ -19,11 +64,11 @@ export async function mostrarHomeAdmin(req, res) {
     });
   } catch (error) {
     console.error("Error en panel admin:", error);
-    res.redirect("/usuario/home");
+    res.redirect("/validadores/home");
   }
 }
 
-export async function listarUsuarios(req, res) {
+export async function listarValidadores(req, res) {
   try {
     const validadores = await Usuario.findAll({
       include: [
@@ -36,13 +81,17 @@ export async function listarUsuarios(req, res) {
       paranoid: false,
     });
 
-    const usuariosFormateados = validadores.map((u) => ({
-      ...u.toJSON(),
-      avatar: blobABase64(u.avatar),
-      rol: u.Rols?.[0]?.nombre || "usuario",
-    }));
+    const usuariosFormateados = validadores.map((u) => {
+      const uJson = u.toJSON();
+      return {
+        ...uJson,
+        avatar: blobABase64(u.avatar),
+        rol: u.Rols?.[0]?.nombre || "usuario",
+        activo: uJson.deletedAt === null,
+      };
+    });
 
-    res.render("admin/usuarios", {
+    res.render("admin/validadores", {
       title: "Gestión de Validadores",
       usuarios: usuariosFormateados,
     });
@@ -52,48 +101,25 @@ export async function listarUsuarios(req, res) {
   }
 }
 
-export async function crearValidador(req, res) {
+export async function eliminarValidador(req, res) {
   try {
-    const { name, lastName, username, email, password } = req.body;
-
-    const rolValidador = await Rol.findOne({ where: { nombre: "validador" } });
-    if (!rolValidador) return res.redirect("/admin/usuarios");
-
-    const nuevoUsuario = await Usuario.create({
-      name,
-      lastName,
-      username,
-      email,
-      password,
+    const usuario = await Usuario.findByPk(req.params.id, {
+      include: [{ model: Rol }],
+      paranoid: false,
     });
 
-    await UsuariosRoles.create({
-      idUsuario: nuevoUsuario.id,
-      idRol: rolValidador.id,
-    });
+    if (!usuario) return res.redirect("/admin/validadores");
 
-    return res.redirect("/admin/usuarios");
+    const esValidador = usuario.Rols?.some((rol) => rol.nombre === "validador");
+    if (esValidador) {
+      await UsuariosRoles.destroy({ where: { idUsuario: usuario.id } });
+      await usuario.destroy({ force: true });
+    }
+
+    return res.redirect("/admin/validadores");
   } catch (error) {
-    console.error("Error al crear validador:", error);
-    res.redirect("/admin/usuarios");
-  }
-}
-
-export async function quitarValidador(req, res) {
-  try {
-    const rolUsuario = await Rol.findOne({ where: { nombre: "usuario" } });
-    if (!rolUsuario) return res.redirect("/admin/usuarios");
-
-    await UsuariosRoles.destroy({ where: { idUsuario: req.params.id } });
-    await UsuariosRoles.create({
-      idUsuario: req.params.id,
-      idRol: rolUsuario.id,
-    });
-
-    return res.redirect("/admin/usuarios");
-  } catch (error) {
-    console.error("Error al quitar validador:", error);
-    res.redirect("/admin/usuarios");
+    console.error("Error al eliminar validador:", error);
+    res.redirect("/admin/validadores");
   }
 }
 
@@ -104,22 +130,26 @@ export async function toggleCuenta(req, res) {
       paranoid: false,
     });
 
-    if (!usuario) return res.redirect("/admin/usuarios");
+    if (!usuario) return res.redirect("/admin/validadores");
 
     const esValidador = usuario.Rols?.some((rol) => rol.nombre === "validador");
 
     if (!esValidador) {
       console.warn(
-        `Alerta de seguridad: Intento de modificar estado de un usuario estándar. ID: ${usuario.id}`,
+        `Intento de modificar estado de un usuario estándar. ID: ${usuario.id}`,
       );
-      return res.redirect("/admin/usuarios");
+      return res.redirect("/admin/validadores");
     }
 
-    await usuario.update({ activo: !usuario.activo });
+    if (usuario.deletedAt) {
+      await usuario.restore();
+    } else {
+      await usuario.destroy();
+    }
 
-    return res.redirect("/admin/usuarios");
+    return res.redirect("/admin/validadores");
   } catch (error) {
     console.error("Error al cambiar estado de cuenta:", error);
-    res.redirect("/admin/usuarios");
+    res.redirect("/admin/validadores");
   }
 }
