@@ -59,12 +59,11 @@ block content
 
                             .d-flex.gap-2.align-items-center
 
-                                if !esPropietario
-                                    button.btn.btn-light.btn-sm(
-                                        type="button"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#modalGuardarColeccion"
-                                        title="Guardar en colección"
+                                button.btn.btn-light.btn-sm(
+                                    type="button"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalGuardarColeccion"
+                                    title="Guardar en colección"
                                     )
                                         i.bi.bi-bookmark
 
@@ -361,9 +360,7 @@ block content
 
                             button.btn.btn-danger(type="submit") Si, eliminar
 
-    if !esPropietario
-
-        #modalGuardarColeccion.modal.fade(
+    #modalGuardarColeccion.modal.fade(
             tabindex="-1" 
             aria-hidden="true"
             data-id-publicacion=publicacion.id

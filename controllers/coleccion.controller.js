@@ -88,21 +88,30 @@ export async function verColeccion(req, res) {
 
 export async function crearColeccion(req, res) {
   try {
-    const { nombre } = req.body;
+    const { nombre, idPublicacion } = req.body;
 
     if (!nombre?.trim()) {
       return res.redirect("/usuario/colecciones");
     }
 
-    await Coleccion.create({
+    const coleccion = await Coleccion.create({
       nombre: nombre.trim(),
       idUsuario: req.session.usuario.id,
     });
 
+    if (idPublicacion) {
+      const publicacion = await Publicacion.findByPk(idPublicacion);
+
+      if (publicacion) {
+        await coleccion.addPublicacion(publicacion);
+        return res.redirect(`/usuario/publicaciones/${idPublicacion}`);
+      }
+    }
+
     return res.redirect("/usuario/colecciones");
   } catch (error) {
     console.error("Error al crear colección:", error);
-    res.redirect("/usuario/colecciones");
+    return res.redirect("/usuario/colecciones");
   }
 }
 

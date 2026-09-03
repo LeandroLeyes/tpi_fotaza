@@ -11,6 +11,7 @@ import {
   eliminarPublicacion,
   mostrarFormEditar,
   editarPublicacion,
+  eliminarComentario,
 } from "../controllers/publicacion.controller.js";
 import {
   mostrarHome,
@@ -98,6 +99,7 @@ usuario.post(
   ),
   crearComentario,
 );
+usuario.post("/comentarios/:idComentario/eliminar", eliminarComentario);
 
 // Valoraciones
 usuario.post("/valoraciones/:idImagen", valorarImagen);
